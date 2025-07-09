@@ -65,12 +65,21 @@ const LoginSignup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
-    navigate("/home");
     setStatus(null);
 
     if (isSignUp) {
-      // Signup: send data to backend
-      console.log("Frontend signup data:", form);
+      // Frontend validation for required fields
+      if (
+        !form.username.trim() ||
+        !form.email.trim() ||
+        !form.password.trim() ||
+        !form.phone.trim() ||
+        !form.address.trim()
+      ) {
+        setStatus(false);
+        setMessage("All fields are required.");
+        return;
+      }
       try {
         const res = await fetch("http://localhost:3000/api/auth/signup", {
           method: "POST",
@@ -79,8 +88,23 @@ const LoginSignup = () => {
           },
           body: JSON.stringify(form),
         });
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          setStatus(false);
+          setMessage("Network error. Please try again.");
+          return;
+        }
+        console.log("Signup/Login response:", data); // Add this line for debugging
         if (res.ok) {
+          // Always store user id and token in localStorage if present
+          if (data.user && (data.user.id || data.user._id)) {
+            localStorage.setItem("userId", data.user.id || data.user._id);
+          }
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
           setStatus(true);
           setMessage("Account created successfully!");
           setForm({
@@ -90,7 +114,9 @@ const LoginSignup = () => {
             phone: "",
             address: "",
           });
-          setTimeout(() => setIsSignUp(false), 1500);
+          setTimeout(() => {
+            navigate("/");
+          }, 500);
         } else {
           setStatus(false);
           setMessage(data.message || "Signup failed");
@@ -109,12 +135,28 @@ const LoginSignup = () => {
           },
           body: JSON.stringify({ email: form.email, password: form.password }),
         });
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          setStatus(false);
+          setMessage("Network error. Please try again.");
+          return;
+        }
+        console.log("Signup/Login response:", data); // Add this line for debugging
         if (res.ok) {
+          // Always store user id in localStorage if present
+          if (data.user && (data.user.id || data.user._id)) {
+            localStorage.setItem("userId", data.user.id || data.user._id);
+          }
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
           setStatus(true);
           setMessage("Welcome back!");
-          // You can redirect here if needed
-          // navigate("/home");
+          setTimeout(() => {
+            navigate("/");
+          }, 500);
         } else {
           setStatus(false);
           setMessage(data.message || "Login failed");
@@ -130,12 +172,8 @@ const LoginSignup = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4">
       <style>{`
         @keyframes shine {
-          0% {
-            background-position: 100%;
-          }
-          100% {
-            background-position: -100%;
-          }
+          0% { background-position: 100%; }
+          100% { background-position: -100%; }
         }
         .animate-shine {
           animation: shine 5s linear infinite;
@@ -191,12 +229,14 @@ const LoginSignup = () => {
           }}
         >
           {/* Sign In Form */}
-          <div
+          <form
+            onSubmit={handleSubmit}
             className={`absolute left-0 top-0 w-full h-full flex flex-col justify-center p-6 transition-all duration-700 ease-in-out ${
               isSignUp
-                ? "opacity-0 -translate-y-full"
+                ? "opacity-0 -translate-y-full pointer-events-none"
                 : "opacity-100 translate-y-0"
             }`}
+            autoComplete="on"
           >
             <div className="space-y-4 mb-6">
               <input
@@ -207,6 +247,7 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                autoComplete="email"
               />
 
               <input
@@ -217,10 +258,11 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                autoComplete="current-password"
               />
 
               <button
-                onClick={handleSubmit}
+                type="submit"
                 className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transform hover:scale-105 transition-all duration-200 shadow-lg text-sm"
               >
                 Sign In
@@ -256,15 +298,17 @@ const LoginSignup = () => {
                 />
               </button>
             </div>
-          </div>
+          </form>
 
           {/* Sign Up Form */}
-          <div
+          <form
+            onSubmit={handleSubmit}
             className={`absolute left-0 top-0 w-full h-full flex flex-col justify-start p-6 pt-4 transition-all duration-700 ease-in-out ${
               isSignUp
                 ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-full"
+                : "opacity-0 translate-y-full pointer-events-none"
             }`}
+            autoComplete="on"
           >
             <div className="space-y-3 mb-4">
               <input
@@ -275,6 +319,7 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                autoComplete="username"
               />
 
               <input
@@ -285,6 +330,7 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                autoComplete="email"
               />
 
               <input
@@ -295,6 +341,7 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                autoComplete="new-password"
               />
 
               <div className="relative">
@@ -324,10 +371,11 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                autoComplete="street-address"
               />
 
               <button
-                onClick={handleSubmit}
+                type="submit"
                 className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transform hover:scale-105 transition-all duration-200 shadow-lg text-sm"
               >
                 Sign Up
@@ -363,7 +411,7 @@ const LoginSignup = () => {
                 />
               </button>
             </div>
-          </div>
+          </form>
         </div>
 
         {/* Floating Animation Elements */}
@@ -383,12 +431,14 @@ const LoginSignup = () => {
           }`}
         >
           {/* Sign In Form */}
-          <div
+          <form
+            onSubmit={handleSubmit}
             className={`absolute left-0 top-0 w-1/2 h-full flex flex-col justify-center p-12 transition-all duration-700 ${
               isSignUp
-                ? "opacity-0 translate-x-full"
+                ? "opacity-0 translate-x-full pointer-events-none"
                 : "opacity-100 translate-x-0"
             }`}
+            autoComplete="on"
           >
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-emerald-100 mb-2">
@@ -410,6 +460,7 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                autoComplete="email"
               />
               <input
                 type="password"
@@ -419,10 +470,11 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                autoComplete="current-password"
               />
 
               <button
-                onClick={handleSubmit}
+                type="submit"
                 className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transform hover:scale-105 transition-all duration-200 shadow-lg"
               >
                 Sign In
@@ -440,15 +492,17 @@ const LoginSignup = () => {
                 {message}
               </div>
             )}
-          </div>
+          </form>
 
           {/* Sign Up Form */}
-          <div
+          <form
+            onSubmit={handleSubmit}
             className={`absolute left-0 top-0 w-1/2 h-full flex flex-col justify-center p-12 transition-all duration-700 ${
               isSignUp
                 ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-full"
+                : "opacity-0 -translate-x-full pointer-events-none"
             }`}
+            autoComplete="on"
           >
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-emerald-100 mb-2">
@@ -470,6 +524,7 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                autoComplete="username"
               />
               <input
                 type="email"
@@ -479,6 +534,7 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                autoComplete="email"
               />
               <input
                 type="password"
@@ -488,6 +544,7 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                autoComplete="new-password"
               />
 
               <div className="relative">
@@ -517,16 +574,18 @@ const LoginSignup = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                autoComplete="street-address"
               />
 
               <button
-                onClick={handleSubmit}
+                type="submit"
                 className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transform hover:scale-105 transition-all duration-200 shadow-lg"
               >
                 Sign Up
               </button>
             </div>
 
+            {/* Message Display for Sign Up */}
             {message && isSignUp && (
               <div
                 className={`mt-4 p-3 rounded-lg text-center ${
@@ -538,7 +597,24 @@ const LoginSignup = () => {
                 {message}
               </div>
             )}
-          </div>
+
+            {/* Toggle to Sign In */}
+            <div className="text-center">
+              <p className="text-gray-300 text-sm mb-3">
+                Already have an account?
+              </p>
+              <button
+                onClick={() => setIsSignUp(false)}
+                className="px-6 py-2 border-2 border-emerald-500 text-emerald-400 font-semibold rounded-full hover:bg-emerald-50 transition-all duration-300 text-sm transform hover:scale-105"
+              >
+                <ShinyText
+                  text="Sign In"
+                  speed={4}
+                  className="text-emerald-400"
+                />
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* Overlay Container */}

@@ -31,19 +31,28 @@ const Product = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 py-10">
       <div className="max-w-4xl mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-8 text-white text-center">
-          Products
-        </h2>
+        <div className="flex flex-col items-center mb-8 animate-fade-in-down">
+          <img
+            src="/mahi.logo.jpg"
+            alt="MahiJewels Logo"
+            className="h-16 w-16 mb-2 rounded-full shadow-lg animate-bounce-slow"
+          />
+          <h1 className="text-4xl font-extrabold text-amber-400 tracking-wide mb-1 animate-fade-in">
+            Mahi <span className="text-white">Jewels</span>
+          </h1>
+        </div>
+
         {products.length === 0 ? (
           <div className="text-center text-gray-300 text-lg">
             No products found.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {products.map((product) => (
+            {products.map((product, idx) => (
               <div
                 key={product._id}
-                className="border border-gray-700 rounded-lg p-6 bg-white/10 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
+                className="border border-gray-700 rounded-lg p-6 bg-white/10 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer animate-fade-in-up"
+                style={{ animationDelay: `${idx * 100}ms` }}
                 onClick={() => navigate(`/viewproduct/${product._id}`)}
               >
                 {product.images && product.images.length > 0 && (
