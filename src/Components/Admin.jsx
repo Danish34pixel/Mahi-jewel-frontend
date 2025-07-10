@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import BASE_API_URL from "./Baseurl";
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
@@ -8,7 +9,8 @@ const Admin = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/auth/users");
+
+      const res = await fetch(`${BASE_API_URL}/api/auth/users`);
       if (!res.ok) throw new Error("Failed to fetch users");
       const data = await res.json();
       setUsers(data);
@@ -55,9 +57,17 @@ const Admin = () => {
                     <button
                       className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded"
                       onClick={async () => {
-                        if (!window.confirm("Are you sure you want to delete this user?")) return;
+                        if (
+                          !window.confirm(
+                            "Are you sure you want to delete this user?"
+                          )
+                        )
+                          return;
                         try {
-                          const res = await fetch(`/api/auth/users/${user._id}`, { method: "DELETE" });
+                          const res = await fetch(
+                            `${BASE_API_URL}/api/auth/users/${user._id}`,
+                            { method: "DELETE" }
+                          );
                           if (!res.ok) throw new Error("Failed to delete user");
                           await fetchUsers(); // Refetch users from backend
                         } catch (err) {
