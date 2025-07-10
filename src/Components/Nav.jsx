@@ -11,7 +11,15 @@ const Nav = () => {
     setIsOpen(!isOpen);
   };
 
-  const navItems = ["Home", "About", "Services", "Contact", "Blogs"];
+  const navItems = [
+    "Home",
+    "About",
+    "Services",
+    "Contact",
+    "Blogs",
+    "Cart",
+    "Your Orders",
+  ];
 
   return (
     <>
@@ -53,7 +61,14 @@ const Nav = () => {
                 {navItems.map((item) => (
                   <button
                     key={item}
-                    onClick={() => setActiveItem(item)}
+                    onClick={() => {
+                      setActiveItem(item);
+                      if (item === "Cart") {
+                        navigate("/cart");
+                      } else if (item === "Your Orders") {
+                        navigate("/order");
+                      }
+                    }}
                     className={`relative px-6 py-3 text-sm font-medium transition-all duration-300 rounded-full ${
                       activeItem === item
                         ? "text-white"

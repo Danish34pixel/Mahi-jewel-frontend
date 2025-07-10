@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginSignup from "../src/Components/LoginSignup";
 import Home from "../src/Components/Home";
 import Admin from "../src/Components/Admin";
@@ -9,14 +9,41 @@ import ViewProduct from "../src/Components/ViewProduct";
 import Cart from "../src/Components/Cart";
 
 import Order from "../src/Components/Order";
+import Orderadmin from "../src/Components/Orderadmin";
+
+// AdminRoute: Only allows access if user is admin (hardcoded check)
+const isAdmin = () => {
+  try {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return false;
+    const user = JSON.parse(userStr);
+    return (
+      user.email === "Mahiijewels@gmail.com" &&
+      (user.phone === "7987175226" || user.phone === 7987175226)
+    );
+  } catch {
+    return false;
+  }
+};
+
+const AdminRoute = ({ element }) => {
+  return isAdmin() ? element : <Navigate to="/login" replace />;
+};
 
 const Routing = () => {
   return (
     <Routes>
       <Route path="/login" element={<LoginSignup />} />
       <Route path="/" element={<Home />} />
-      <Route path="/admin" element={<Admin />} />
-      <Route path="/addproduct" element={<AddProduct />} />
+      <Route path="/admin" element={<AdminRoute element={<Admin />} />} />
+      <Route
+        path="/addproduct"
+        element={<AdminRoute element={<AddProduct />} />}
+      />
+      <Route
+        path="/orderadmin"
+        element={<AdminRoute element={<Orderadmin />} />}
+      />
       <Route path="/product" element={<Product />} />
       <Route path="/viewproduct/:id" element={<ViewProduct />} />
       <Route path="/cart" element={<Cart />} />
