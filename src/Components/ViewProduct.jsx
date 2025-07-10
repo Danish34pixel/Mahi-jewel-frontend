@@ -18,7 +18,9 @@ const ViewProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/products/${id}`);
+        const res = await fetch(
+          `https://mahi-jewel-backend.onrender.com/api/products/${id}`
+        );
         const data = await res.json();
         setProduct(data);
       } catch (err) {
@@ -40,17 +42,20 @@ const ViewProduct = () => {
     }
     localStorage.setItem("userId", userId);
     try {
-      const res = await fetch("http://localhost:3000/api/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          productId: product._id,
-          name: product.name,
-          price: product.price,
-          image: product.images?.[0] || "",
-        }),
-      });
+      const res = await fetch(
+        "https://mahi-jewel-backend.onrender.com/api/cart/add",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            productId: product._id,
+            name: product.name,
+            price: product.price,
+            image: product.images?.[0] || "",
+          }),
+        }
+      );
       const data = await res.json();
       setMessage(data.message || "Added to cart");
       // Navigate to /cart after adding to cart

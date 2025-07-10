@@ -17,7 +17,7 @@ const Cart = () => {
     if (!userId) return;
 
     setLoading(true);
-    fetch(`http://localhost:3000/api/cart?userId=${userId}`)
+    fetch(`https://mahi-jewel-backend.onrender.com/api/cart?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setItems(data);
@@ -45,7 +45,7 @@ const Cart = () => {
     );
 
     // Update quantity in backend
-    fetch(`http://localhost:3000/api/cart/${itemId}`, {
+    fetch(`https://mahi-jewel-backend.onrender.com/api/cart/${itemId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quantity: newQuantity }),
@@ -62,7 +62,7 @@ const Cart = () => {
 
   const fetchCart = () => {
     setLoading(true);
-    fetch(`http://localhost:3000/api/cart?userId=${userId}`)
+    fetch(`https://mahi-jewel-backend.onrender.com/api/cart?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setItems(data);
@@ -78,7 +78,7 @@ const Cart = () => {
   const removeItem = (itemId) => {
     setDeletingId(itemId);
     setDeleteError("");
-    fetch(`http://localhost:3000/api/cart/${itemId}`, {
+    fetch(`https://mahi-jewel-backend.onrender.com/api/cart/${itemId}`, {
       method: "DELETE",
     })
       .then((res) => {

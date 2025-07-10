@@ -42,10 +42,13 @@ const AddProduct = () => {
       formData.append("images", form.images[i]);
     }
     try {
-      const res = await fetch("http://localhost:3000/api/products", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        "https://mahi-jewel-backend.onrender.com/api/products",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
       if (res.ok) {
         setMessage("Product added successfully!");
         setForm({

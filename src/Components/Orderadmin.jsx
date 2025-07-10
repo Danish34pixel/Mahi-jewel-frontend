@@ -11,7 +11,9 @@ const Orderadmin = () => {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("http://localhost:3000/api/orders");
+        const res = await fetch(
+          "https://mahi-jewel-backend.onrender.com/api/orders"
+        );
         if (!res.ok) throw new Error("Failed to fetch orders");
         const data = await res.json();
         setOrders(Array.isArray(data) ? data : []);
@@ -40,7 +42,7 @@ const Orderadmin = () => {
     }
     try {
       const res = await fetch(
-        `http://localhost:3000/api/orders/status/${orderId}`,
+        `https://mahi-jewel-backend.onrender.com/api/orders/status/${orderId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -9,7 +9,9 @@ const Product = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/products");
+        const res = await fetch(
+          "https://mahi-jewel-backend.onrender.com/api/products"
+        );
         const data = await res.json();
         setProducts(data);
       } catch (err) {

@@ -40,7 +40,7 @@ const Order = () => {
       try {
         // Pass userId as query param for backend
         const res = await fetch(
-          `http://localhost:3000/api/cart?userId=${userId}`,
+          `https://mahi-jewel-backend.onrender.com/api/cart?userId=${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -73,7 +73,9 @@ const Order = () => {
       setError("");
       try {
         // Fixed: Use correct port
-        const res = await fetch(`http://localhost:3000/api/orders/${userId}`);
+        const res = await fetch(
+          `https://mahi-jewel-backend.onrender.com/api/orders/${userId}`
+        );
         if (!res.ok) throw new Error("Failed to fetch orders");
         const data = await res.json();
         console.log("Orders data:", data); // Debug log
@@ -113,20 +115,23 @@ const Order = () => {
     if (!cart.length) return setCheckoutMsg("Your cart is empty.");
     try {
       // Fixed: Use correct port
-      const res = await fetch("http://localhost:3000/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          userId,
-          products: cart,
-          total,
-          address: user && user.address ? user.address : "",
-        }),
-      });
+      const res = await fetch(
+        "https://mahi-jewel-backend.onrender.com/api/orders",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            userId,
+            products: cart,
+            total,
+            address: user && user.address ? user.address : "",
+          }),
+        }
+      );
       const data = await res.json();
       console.log("Checkout response:", data); // Debug log
       if (res.ok && data.success) {
@@ -135,13 +140,16 @@ const Order = () => {
         localStorage.removeItem("cart"); // Clear cart from localStorage if used
         // Optionally, you can also call the backend to clear the cart for this user
         try {
-          await fetch(`http://localhost:3000/api/cart/clear?userId=${userId}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            credentials: "include",
-          });
+          await fetch(
+            `https://mahi-jewel-backend.onrender.com/api/cart/clear?userId=${userId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+              credentials: "include",
+            }
+          );
         } catch (e) {}
         // Refresh orders
         setOrders((prev) => [data.order, ...prev]);
@@ -356,7 +364,7 @@ const Order = () => {
                       onClick={async () => {
                         try {
                           const res = await fetch(
-                            `http://localhost:3000/api/orders/cancel/${order._id}`,
+                            `https://mahi-jewel-backend.onrender.com/api/orders/cancel/${order._id}`,
                             {
                               method: "PUT",
                             }
@@ -390,7 +398,7 @@ const Order = () => {
                         return;
                       try {
                         const res = await fetch(
-                          `http://localhost:3000/api/orders/${order._id}`,
+                          `https://mahi-jewel-backend.onrender.com/api/orders/${order._id}`,
                           {
                             method: "DELETE",
                           }
@@ -424,7 +432,7 @@ const Order = () => {
                         if (!arrivingDate) return;
                         try {
                           const res = await fetch(
-                            `http://localhost:3000/api/orders/status/${order._id}`,
+                            `https://mahi-jewel-backend.onrender.com/api/orders/status/${order._id}`,
                             {
                               method: "PUT",
                               headers: {
