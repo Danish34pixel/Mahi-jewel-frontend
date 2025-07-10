@@ -21,7 +21,7 @@ const Product = () => {
             setProducts(Array.isArray(data) ? data : []);
           })
           .catch(() => {
-            fetch("http://localhost:3000/api/products")
+            fetch(`${BASE_API_URL}/api/products`)
               .then((response) => {
                 if (!response.ok) throw new Error("Failed to fetch products");
                 return response.json();
