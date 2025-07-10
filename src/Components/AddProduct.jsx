@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import BASE_API_URL from "./Baseurl";
 
 const AddProduct = () => {
   const [form, setForm] = useState({
@@ -42,13 +43,10 @@ const AddProduct = () => {
       formData.append("images", form.images[i]);
     }
     try {
-      const res = await fetch(
-        "https://mahi-jewel-backend.onrender.com/api/products",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const res = await fetch(`${BASE_API_URL}/api/products/add`, {
+        method: "POST",
+        body: formData,
+      });
       if (res.ok) {
         setMessage("Product added successfully!");
         setForm({

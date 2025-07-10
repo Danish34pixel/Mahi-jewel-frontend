@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Minus, ShoppingCart, Trash2, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import BASE_API_URL from "./Baseurl";
 
 const Cart = () => {
   const [items, setItems] = useState([]);
@@ -62,7 +63,7 @@ const Cart = () => {
 
   const fetchCart = () => {
     setLoading(true);
-    fetch(`https://mahi-jewel-backend.onrender.com/api/cart?userId=${userId}`)
+    fetch(`${BASE_API_URL}/api/cart?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setItems(data);

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BASE_API_URL from "./Baseurl";
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -9,11 +10,29 @@ const Product = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(
-          "https://mahi-jewel-backend.onrender.com/api/products"
-        );
-        const data = await res.json();
-        setProducts(data);
+        // Try deployed backend first, fallback to localhost if it fails
+        let res;
+        fetch(`${BASE_API_URL}/api/products`)
+          .then((response) => {
+            if (!response.ok) throw new Error("Failed to fetch products");
+            return response.json();
+          })
+          .then((data) => {
+            setProducts(Array.isArray(data) ? data : []);
+          })
+          .catch(() => {
+            fetch("http://localhost:3000/api/products")
+              .then((response) => {
+                if (!response.ok) throw new Error("Failed to fetch products");
+                return response.json();
+              })
+              .then((data) => {
+                setProducts(Array.isArray(data) ? data : []);
+              })
+              .catch(() => {
+                setProducts([]);
+              });
+          });
       } catch (err) {
         setProducts([]);
       } finally {

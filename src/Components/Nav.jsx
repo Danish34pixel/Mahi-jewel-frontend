@@ -11,12 +11,28 @@ const Nav = () => {
     setIsOpen(!isOpen);
   };
 
+  // Admin check (same as Routing.jsx)
+  const isAdmin = () => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) return false;
+      const user = JSON.parse(userStr);
+      return (
+        user.email === "Mahiijewels@gmail.com" &&
+        (user.phone === "7897175226" || user.phone === 7897175226)
+      );
+    } catch {
+      return false;
+    }
+  };
+
   const navItems = [
     "Home",
     "About",
     "Services",
     "Contact",
     "Blogs",
+    ...(isAdmin() ? ["Add Product", "Order Admin"] : []),
     "Cart",
     "Your Orders",
   ];
@@ -67,6 +83,10 @@ const Nav = () => {
                         navigate("/cart");
                       } else if (item === "Your Orders") {
                         navigate("/order");
+                      } else if (item === "Add Product") {
+                        navigate("/addproduct");
+                      } else if (item === "Order Admin") {
+                        navigate("/orderadmin");
                       }
                     }}
                     className={`relative px-6 py-3 text-sm font-medium transition-all duration-300 rounded-full ${
@@ -128,6 +148,15 @@ const Nav = () => {
                     onClick={() => {
                       setActiveItem(item);
                       setIsOpen(false);
+                      if (item === "Cart") {
+                        navigate("/cart");
+                      } else if (item === "Your Orders") {
+                        navigate("/order");
+                      } else if (item === "Add Product") {
+                        navigate("/addproduct");
+                      } else if (item === "Order Admin") {
+                        navigate("/orderadmin");
+                      }
                     }}
                     className={`block w-full text-left px-4 py-3 text-base font-medium rounded-lg transition-all duration-300 ${
                       activeItem === item

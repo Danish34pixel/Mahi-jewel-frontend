@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import BASE_API_URL from "./Baseurl";
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -39,15 +40,12 @@ const Order = () => {
       setCartError("");
       try {
         // Pass userId as query param for backend
-        const res = await fetch(
-          `https://mahi-jewel-backend.onrender.com/api/cart?userId=${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            credentials: "include",
-          }
-        );
+        const res = await fetch(`${BASE_API_URL}/api/cart?userId=${userId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Failed to fetch cart");
         const data = await res.json();
         console.log("Cart data:", data); // Debug log

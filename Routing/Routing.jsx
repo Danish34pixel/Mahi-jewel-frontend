@@ -13,6 +13,13 @@ import Orderadmin from "../src/Components/Orderadmin";
 
 // AdminRoute: Only allows access if user is admin (hardcoded check)
 const isAdmin = () => {
+  // Prefer userEmail from localStorage, fallback to user object
+  const email = localStorage.getItem("userEmail");
+  if (email === "Mahiijewels@gmail.com") {
+    // Optionally, you can also check userId or other admin criteria here
+    return true;
+  }
+  // Fallback for old user object logic
   try {
     const userStr = localStorage.getItem("user");
     if (!userStr) return false;

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import BASE_API_URL from "./Baseurl";
 
 // Animation helper for fade-in
 const fadeInClass =
@@ -17,18 +18,21 @@ const ViewProduct = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      try {
-        const res = await fetch(
-          `https://mahi-jewel-backend.onrender.com/api/products/${id}`
-        );
-        const data = await res.json();
-        setProduct(data);
-      } catch (err) {
-        setProduct(null);
-      } finally {
-        setLoading(false);
-        setTimeout(() => setAnimate(true), 100); // trigger animation after mount
-      }
+      fetch(`${BASE_API_URL}/api/products/${id}`)
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to fetch product");
+          return response.json();
+        })
+        .then((data) => {
+          setProduct(data);
+        })
+        .catch(() => {
+          setProduct(null);
+        })
+        .finally(() => {
+          setLoading(false);
+          setTimeout(() => setAnimate(true), 100); // trigger animation after mount
+        });
     };
     fetchProduct();
   }, [id]);

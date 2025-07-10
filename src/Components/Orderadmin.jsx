@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import BASE_API_URL from "./Baseurl";
 
 const Orderadmin = () => {
   const [orders, setOrders] = useState([]);
@@ -11,12 +12,29 @@ const Orderadmin = () => {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(
-          "https://mahi-jewel-backend.onrender.com/api/orders"
-        );
-        if (!res.ok) throw new Error("Failed to fetch orders");
-        const data = await res.json();
-        setOrders(Array.isArray(data) ? data : []);
+        // Try deployed backend first, fallback to localhost if it fails
+        let res;
+        fetch(`${BASE_API_URL}/api/orders`)
+          .then((response) => {
+            if (!response.ok) throw new Error("Failed to fetch orders");
+            return response.json();
+          })
+          .then((data) => {
+            setOrders(Array.isArray(data) ? data : []);
+          })
+          .catch(() => {
+            fetch("http://localhost:3000/api/orders")
+              .then((response) => {
+                if (!response.ok) throw new Error("Failed to fetch orders");
+                return response.json();
+              })
+              .then((data) => {
+                setOrders(Array.isArray(data) ? data : []);
+              })
+              .catch(() => {
+                setError("Could not load orders.");
+              });
+          });
       } catch (err) {
         setError("Could not load orders.");
       }

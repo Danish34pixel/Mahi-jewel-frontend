@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BASE_API_URL from "./Baseurl";
 // ShinyText component integrated
 const ShinyText = ({ text, disabled = false, speed = 5, className = "" }) => {
   const animationDuration = `${speed}s`;
@@ -81,16 +82,13 @@ const LoginSignup = () => {
         return;
       }
       try {
-        const res = await fetch(
-          "https://mahi-jewel-backend.onrender.com/api/auth/signup",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(form),
-          }
-        );
+        const res = await fetch(`${BASE_API_URL}/api/auth/signup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        });
         let data = {};
         try {
           data = await res.json();
@@ -101,9 +99,12 @@ const LoginSignup = () => {
         }
         console.log("Signup/Login response:", data); // Add this line for debugging
         if (res.ok) {
-          // Always store user id and token in localStorage if present
+          // Always store user id, email, and token in localStorage if present
           if (data.user && (data.user.id || data.user._id)) {
             localStorage.setItem("userId", data.user.id || data.user._id);
+          }
+          if (data.user && data.user.email) {
+            localStorage.setItem("userEmail", data.user.email);
           }
           if (data.token) {
             localStorage.setItem("token", data.token);
@@ -131,19 +132,16 @@ const LoginSignup = () => {
     } else {
       // Login: send data to backend
       try {
-        const res = await fetch(
-          "https://mahi-jewel-backend.onrender.com/api/auth/login",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: form.email,
-              password: form.password,
-            }),
-          }
-        );
+        const res = await fetch(`${BASE_API_URL}/api/auth/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: form.email,
+            password: form.password,
+          }),
+        });
         let data = {};
         try {
           data = await res.json();
@@ -154,9 +152,12 @@ const LoginSignup = () => {
         }
         console.log("Signup/Login response:", data); // Add this line for debugging
         if (res.ok) {
-          // Always store user id in localStorage if present
+          // Always store user id and email in localStorage if present
           if (data.user && (data.user.id || data.user._id)) {
             localStorage.setItem("userId", data.user.id || data.user._id);
+          }
+          if (data.user && data.user.email) {
+            localStorage.setItem("userEmail", data.user.email);
           }
           if (data.token) {
             localStorage.setItem("token", data.token);
