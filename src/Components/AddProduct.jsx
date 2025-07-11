@@ -13,7 +13,10 @@ const AddProduct = () => {
   const [message, setMessage] = useState("");
 
   const onDrop = useCallback((acceptedFiles) => {
-    setForm((prev) => ({ ...prev, images: acceptedFiles.slice(0, 5) }));
+    setForm((prev) => ({
+      ...prev,
+      images: acceptedFiles.slice(0, 5),
+    }));
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -24,31 +27,41 @@ const AddProduct = () => {
   });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+
     if (form.images.length !== 5) {
       setMessage("Please select exactly 5 images.");
       return;
     }
+
     const formData = new FormData();
     formData.append("name", form.name);
-    formData.append("price", form.price);
+    formData.append("price", Number(form.price));
     formData.append("description", form.description);
     formData.append("category", form.category);
+
     for (let i = 0; i < form.images.length; i++) {
       formData.append("images", form.images[i]);
     }
+
     try {
       const res = await fetch(`${BASE_API_URL}/api/products`, {
         method: "POST",
         body: formData,
       });
+
+      const data = await res.json();
+
       if (res.ok) {
-        setMessage("Product added successfully!");
+        setMessage("✅ Product added successfully!");
         setForm({
           name: "",
           price: "",
@@ -57,7 +70,7 @@ const AddProduct = () => {
           category: "",
         });
       } else {
-        setMessage("Failed to add product");
+        setMessage(data.message || "Failed to add product");
       }
     } catch (err) {
       setMessage("Server error");
@@ -86,6 +99,7 @@ const AddProduct = () => {
           className="w-full border px-3 py-2 rounded"
           required
         />
+
         <div
           {...getRootProps()}
           className={`border-2 border-dashed rounded p-4 text-center cursor-pointer ${
@@ -99,6 +113,7 @@ const AddProduct = () => {
             <p>Drag & drop 5 images here, or click to select</p>
           )}
         </div>
+
         {form.images.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
             {form.images.map((file, idx) => (
@@ -115,11 +130,13 @@ const AddProduct = () => {
             ))}
           </div>
         )}
+
         {form.images.length !== 5 && (
           <div className="text-red-500 text-xs mb-2">
             Please select exactly 5 images.
           </div>
         )}
+
         <input
           type="text"
           name="category"
@@ -128,6 +145,7 @@ const AddProduct = () => {
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
         />
+
         <textarea
           name="description"
           placeholder="Description"
@@ -135,6 +153,7 @@ const AddProduct = () => {
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
         />
+
         <button
           type="submit"
           className="w-full bg-amber-500 text-white py-2 rounded hover:bg-amber-600"
@@ -142,6 +161,7 @@ const AddProduct = () => {
           Add Product
         </button>
       </form>
+
       {message && (
         <div className="mt-4 text-center text-red-500">{message}</div>
       )}

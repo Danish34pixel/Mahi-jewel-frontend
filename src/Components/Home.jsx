@@ -8,10 +8,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import Nav from "./Nav";
+import { useNavigate } from "react-router-dom";
 
 // Nav component removed as requested
 
 const Home = () => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState({});
 
@@ -108,7 +110,10 @@ const Home = () => {
       <Nav />
 
       {/* Hero Section */}
-      <section className="relative h-screen overflow-hidden">
+      <section
+        onClick={() => navigate("/product")}
+        className="relative h-screen overflow-hidden"
+      >
         <div className="absolute inset-0">
           {heroSlides.map((slide, index) => (
             <div
@@ -140,7 +145,10 @@ const Home = () => {
             <p className="text-xl md:text-2xl mb-8 opacity-90 animate-fade-in-up animation-delay-200">
               {heroSlides[currentSlide].subtitle}
             </p>
-            <button className="bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-amber-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 animate-fade-in-up animation-delay-400 group">
+            <button
+              className="bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-amber-500 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 animate-fade-in-up animation-delay-400 group"
+              onClick={() => navigate("/product")}
+            >
               {heroSlides[currentSlide].cta}
               <ArrowRight className="inline ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -167,7 +175,11 @@ const Home = () => {
       </section>
 
       {/* Featured Products */}
-      <section id="featured" className="py-20 px-4 max-w-7xl mx-auto">
+      <section
+        id="featured"
+        onClick={() => navigate("/product")}
+        className="py-20 px-4 max-w-7xl mx-auto"
+      >
         <div
           className={`text-center mb-16 transition-all duration-1000 ${
             isVisible.featured
