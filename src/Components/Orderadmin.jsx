@@ -3,9 +3,43 @@ import BASE_API_URL from "./Baseurl";
 
 const Orderadmin = () => {
   const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
+
+  useEffect(() => {
+    // Fetch orders
+    setLoading(true);
+    setError("");
+    fetch(`${BASE_API_URL}/api/orders`)
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch orders");
+        return response.json();
+      })
+      .then((data) => {
+        setOrders(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        fetch("http://localhost:3000/api/orders")
+          .then((response) => {
+            if (!response.ok) throw new Error("Failed to fetch orders");
+            return response.json();
+          })
+          .then((data) => {
+            setOrders(Array.isArray(data) ? data : []);
+          })
+          .catch(() => {
+            setError("Could not load orders.");
+          });
+      });
+    // Fetch users
+    fetch(`${BASE_API_URL}/api/auth/users`)
+      .then((response) => response.json())
+      .then((data) => setUsers(Array.isArray(data) ? data : []))
+      .catch(() => setUsers([]));
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -126,6 +160,21 @@ const Orderadmin = () => {
                     </span>
                     <span className="text-yellow-300 bg-yellow-900/80 px-2 py-1 rounded text-xs font-semibold">
                       {order.status || "Pending"}
+                    </span>
+                  </div>
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-white">
+                      User Address:
+                    </span>
+                    <span className="text-gray-200 text-xs bg-gray-700 px-2 py-1 w-fit rounded">
+                      {order.address ||
+                        (() => {
+                          const userId = order.userId?._id || order.userId;
+                          const user = users.find(
+                            (u) => u._id === userId || u.id === userId
+                          );
+                          return user?.address || "N/A";
+                        })()}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-4 mt-2">

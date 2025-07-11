@@ -416,57 +416,7 @@ const Order = () => {
                     Delete
                   </button>
                   {/* Arriving Status Button */}
-                  {order.status && order.status.toLowerCase() !== "arriving" ? (
-                    <button
-                      className="mt-2 px-3 py-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded shadow-lg hover:from-blue-700 hover:to-cyan-700 text-xs font-semibold transition-all duration-200 transform hover:scale-105"
-                      onClick={async () => {
-                        const arrivingInfo = prompt(
-                          "Enter arrival details (e.g., tracking info):"
-                        );
-                        if (!arrivingInfo) return;
-                        const arrivingDate = prompt(
-                          "Enter expected arriving date (e.g., 2025-07-01):"
-                        );
-                        if (!arrivingDate) return;
-                        try {
-                          const res = await fetch(
-                            `https://mahi-jewel-backend.onrender.com/api/orders/status/${order._id}`,
-                            {
-                              method: "PUT",
-                              headers: {
-                                "Content-Type": "application/json",
-                              },
-                              body: JSON.stringify({
-                                status: "Arriving",
-                                arrivingInfo,
-                                arrivingDate,
-                              }),
-                            }
-                          );
-                          if (res.ok) {
-                            setOrders((prev) =>
-                              prev.map((o) =>
-                                o._id === order._id
-                                  ? {
-                                      ...o,
-                                      status: "Arriving",
-                                      arrivingInfo,
-                                      arrivingDate,
-                                    }
-                                  : o
-                              )
-                            );
-                          } else {
-                            alert("Failed to update status.");
-                          }
-                        } catch (err) {
-                          alert("Failed to update status.");
-                        }
-                      }}
-                    >
-                      Mark as Arriving
-                    </button>
-                  ) : null}
+
                   {/* Arriving Info Display - always show if either is present */}
                   <div className="mt-2 text-xs text-blue-300 bg-blue-900/80 rounded p-2 backdrop-blur-sm">
                     <span>

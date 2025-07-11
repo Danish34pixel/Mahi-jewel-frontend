@@ -119,7 +119,7 @@ const LoginSignup = () => {
             address: "",
           });
           setTimeout(() => {
-            navigate("/");
+            navigate("/login");
           }, 500);
         } else {
           setStatus(false);
