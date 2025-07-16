@@ -106,13 +106,13 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50">
+    <div className="min-h-screen bg-white">
       <Nav />
 
       {/* Hero Section */}
       <section
         onClick={() => navigate("/product")}
-        className="relative h-screen overflow-hidden"
+        className="relative h-screen overflow-hidden bg-white"
       >
         <div className="absolute inset-0">
           {heroSlides.map((slide, index) => (
@@ -127,7 +127,7 @@ const Home = () => {
               <div
                 className="w-full h-full bg-cover bg-center"
                 style={{
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${slide.image})`,
+                  backgroundImage: `linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url(${slide.image})`,
                 }}
               />
             </div>
@@ -178,7 +178,7 @@ const Home = () => {
       <section
         id="featured"
         onClick={() => navigate("/product")}
-        className="py-20 px-4 max-w-7xl mx-auto"
+        className="py-20 px-4 max-w-7xl mx-auto bg-white"
       >
         <div
           className={`text-center mb-16 transition-all duration-1000 ${
@@ -242,10 +242,7 @@ const Home = () => {
       </section>
 
       {/* Luxury Promise */}
-      <section
-        id="promise"
-        className="py-20 bg-gradient-to-r from-amber-50 to-yellow-50"
-      >
+      <section id="promise" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div
@@ -316,7 +313,7 @@ const Home = () => {
       </section>
 
       {/* Newsletter */}
-      <section id="newsletter" className="py-20 bg-gray-900">
+      <section id="newsletter" className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div
             className={`transition-all duration-1000 ${

@@ -40,7 +40,7 @@ const Nav = () => {
   return (
     <>
       {/* Animated background with geometric patterns */}
-      <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800 overflow-hidden">
+      <div className="fixed inset-0 bg-white overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-10 w-64 h-64 border border-blue-500 rounded-full animate-pulse"></div>
           <div className="absolute bottom-20 left-20 w-32 h-32 border border-cyan-400 rotate-45 animate-bounce"></div>

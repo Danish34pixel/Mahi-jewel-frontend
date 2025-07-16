@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BASE_API_URL from "./Baseurl";
+import axios from "axios";
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -10,29 +11,14 @@ const Product = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Try deployed backend first, fallback to localhost if it fails
         let res;
-        fetch(`${BASE_API_URL}/api/products`)
-          .then((response) => {
-            if (!response.ok) throw new Error("Failed to fetch products");
-            return response.json();
-          })
-          .then((data) => {
-            setProducts(Array.isArray(data) ? data : []);
-          })
-          .catch(() => {
-            fetch(`${BASE_API_URL}/api/products`)
-              .then((response) => {
-                if (!response.ok) throw new Error("Failed to fetch products");
-                return response.json();
-              })
-              .then((data) => {
-                setProducts(Array.isArray(data) ? data : []);
-              })
-              .catch(() => {
-                setProducts([]);
-              });
-          });
+        try {
+          res = await axios.get(`${BASE_API_URL}/api/products`);
+          setProducts(Array.isArray(res.data) ? res.data : []);
+        } catch {
+          res = await axios.get("http://localhost:3000/api/products");
+          setProducts(Array.isArray(res.data) ? res.data : []);
+        }
       } catch (err) {
         setProducts([]);
       } finally {
@@ -44,13 +30,13 @@ const Product = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center text-white text-xl">Loading...</div>
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 py-10">
+    <div className="min-h-screen bg-white py-10">
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex flex-col items-center mb-8 animate-fade-in-down">
           <img

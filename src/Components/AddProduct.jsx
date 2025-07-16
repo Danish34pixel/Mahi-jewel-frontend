@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import BASE_API_URL from "./Baseurl";
+import axios from "axios";
 
 const AddProduct = () => {
   const [form, setForm] = useState({
@@ -53,14 +54,11 @@ const AddProduct = () => {
     }
 
     try {
-      const res = await fetch(`${BASE_API_URL}/api/products`, {
-        method: "POST",
-        body: formData,
+      const res = await axios.post(`${BASE_API_URL}/api/products`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-
-      const data = await res.json();
-
-      if (res.ok) {
+      const data = res.data;
+      if (res.status === 200 || res.status === 201) {
         setMessage("✅ Product added successfully!");
         setForm({
           name: "",
@@ -73,7 +71,7 @@ const AddProduct = () => {
         setMessage(data.message || "Failed to add product");
       }
     } catch (err) {
-      setMessage("Server error");
+      setMessage(err.response?.data?.message || "Server error");
     }
   };
 

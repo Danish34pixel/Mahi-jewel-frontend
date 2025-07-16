@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import BASE_API_URL from "./Baseurl";
+import axios from "axios";
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
@@ -9,10 +10,8 @@ const Admin = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${BASE_API_URL}/api/auth/users`);
-      if (!res.ok) throw new Error("Failed to fetch users");
-      const data = await res.json();
-      setUsers(data);
+      const res = await axios.get(`${BASE_API_URL}/api/auth/users`);
+      setUsers(res.data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -24,10 +23,11 @@ const Admin = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      const res = await fetch(`${BASE_API_URL}/api/auth/users/${userId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete user");
+      const res = await axios.delete(
+        `${BASE_API_URL}/api/auth/users/${userId}`
+      );
+      if (res.status !== 200 && res.status !== 204)
+        throw new Error("Failed to delete user");
       fetchUsers();
     } catch (err) {
       alert(err.message);

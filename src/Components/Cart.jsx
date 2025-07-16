@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Plus, Minus, ShoppingCart, Trash2, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BASE_API_URL from "./Baseurl";
+import axios from "axios";
 
 const Cart = () => {
   const [items, setItems] = useState([]);
@@ -18,15 +19,17 @@ const Cart = () => {
     if (!userId) return;
 
     setLoading(true);
-    fetch(`https://mahi-jewel-backend.onrender.com/api/cart?userId=${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setItems(data);
+    axios
+      .get(`https://mahi-jewel-backend.onrender.com/api/cart`, {
+        params: { userId },
+      })
+      .then((res) => {
+        setItems(res.data);
         setLoading(false);
         // Debug log: print all cart item IDs after fetch
         console.log(
           "Fetched cart items:",
-          data.map((item) => item._id)
+          res.data.map((item) => item._id)
         );
       })
       .catch((error) => {
@@ -46,27 +49,27 @@ const Cart = () => {
     );
 
     // Update quantity in backend
-    fetch(`https://mahi-jewel-backend.onrender.com/api/cart/${itemId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quantity: newQuantity }),
-    }).catch((error) => {
-      console.error("Error updating quantity:", error);
-      // Revert on error
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item._id === itemId ? { ...item, quantity: item.quantity } : item
-        )
-      );
-    });
+    axios
+      .put(`https://mahi-jewel-backend.onrender.com/api/cart/${itemId}`, {
+        quantity: newQuantity,
+      })
+      .catch((error) => {
+        console.error("Error updating quantity:", error);
+        // Revert on error
+        setItems((prevItems) =>
+          prevItems.map((item) =>
+            item._id === itemId ? { ...item, quantity: item.quantity } : item
+          )
+        );
+      });
   };
 
   const fetchCart = () => {
     setLoading(true);
-    fetch(`${BASE_API_URL}/api/cart?userId=${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setItems(data);
+    axios
+      .get(`${BASE_API_URL}/api/cart`, { params: { userId } })
+      .then((res) => {
+        setItems(res.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -79,11 +82,10 @@ const Cart = () => {
   const removeItem = (itemId) => {
     setDeletingId(itemId);
     setDeleteError("");
-    fetch(`https://mahi-jewel-backend.onrender.com/api/cart/${itemId}`, {
-      method: "DELETE",
-    })
+    axios
+      .delete(`https://mahi-jewel-backend.onrender.com/api/cart/${itemId}`)
       .then((res) => {
-        if (!res.ok) {
+        if (res.status !== 200 && res.status !== 204) {
           throw new Error("Failed to delete item from backend");
         }
         fetchCart();

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import BASE_API_URL from "./Baseurl";
+import axios from "axios";
 
 const Orderadmin = () => {
   const [orders, setOrders] = useState([]);
@@ -12,31 +13,25 @@ const Orderadmin = () => {
     // Fetch orders
     setLoading(true);
     setError("");
-    fetch(`${BASE_API_URL}/api/orders`)
-      .then((response) => {
-        if (!response.ok) throw new Error("Failed to fetch orders");
-        return response.json();
-      })
-      .then((data) => {
-        setOrders(Array.isArray(data) ? data : []);
+    axios
+      .get(`${BASE_API_URL}/api/orders`)
+      .then((res) => {
+        setOrders(Array.isArray(res.data) ? res.data : []);
       })
       .catch(() => {
-        fetch("http://localhost:3000/api/orders")
-          .then((response) => {
-            if (!response.ok) throw new Error("Failed to fetch orders");
-            return response.json();
-          })
-          .then((data) => {
-            setOrders(Array.isArray(data) ? data : []);
+        axios
+          .get("http://localhost:3000/api/orders")
+          .then((res) => {
+            setOrders(Array.isArray(res.data) ? res.data : []);
           })
           .catch(() => {
             setError("Could not load orders.");
           });
       });
     // Fetch users
-    fetch(`${BASE_API_URL}/api/auth/users`)
-      .then((response) => response.json())
-      .then((data) => setUsers(Array.isArray(data) ? data : []))
+    axios
+      .get(`${BASE_API_URL}/api/auth/users`)
+      .then((res) => setUsers(Array.isArray(res.data) ? res.data : []))
       .catch(() => setUsers([]));
     setLoading(false);
   }, []);
@@ -46,31 +41,16 @@ const Orderadmin = () => {
       setLoading(true);
       setError("");
       try {
-        // Try deployed backend first, fallback to localhost if it fails
         let res;
-        fetch(`${BASE_API_URL}/api/orders`)
-          .then((response) => {
-            if (!response.ok) throw new Error("Failed to fetch orders");
-            return response.json();
-          })
-          .then((data) => {
-            setOrders(Array.isArray(data) ? data : []);
-          })
-          .catch(() => {
-            fetch("http://localhost:3000/api/orders")
-              .then((response) => {
-                if (!response.ok) throw new Error("Failed to fetch orders");
-                return response.json();
-              })
-              .then((data) => {
-                setOrders(Array.isArray(data) ? data : []);
-              })
-              .catch(() => {
-                setError("Could not load orders.");
-              });
-          });
-      } catch (err) {
-        setError("Could not load orders.");
+        res = await axios.get(`${BASE_API_URL}/api/orders`);
+        setOrders(Array.isArray(res.data) ? res.data : []);
+      } catch {
+        try {
+          const res = await axios.get("http://localhost:3000/api/orders");
+          setOrders(Array.isArray(res.data) ? res.data : []);
+        } catch {
+          setError("Could not load orders.");
+        }
       }
       setLoading(false);
     };
@@ -93,19 +73,16 @@ const Orderadmin = () => {
       if (!arrivingDate) return;
     }
     try {
-      const res = await fetch(
+      const res = await axios.put(
         `https://mahi-jewel-backend.onrender.com/api/orders/status/${orderId}`,
         {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            status: newStatus,
-            arrivingInfo,
-            arrivingDate,
-          }),
-        }
+          status: newStatus,
+          arrivingInfo,
+          arrivingDate,
+        },
+        { headers: { "Content-Type": "application/json" } }
       );
-      if (res.ok) {
+      if (res.status === 200) {
         setOrders((prev) =>
           prev.map((o) =>
             o._id === orderId

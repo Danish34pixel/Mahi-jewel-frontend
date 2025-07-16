@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import BASE_API_URL from "./Baseurl";
+import axios from "axios";
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -39,19 +40,16 @@ const Order = () => {
       setCartLoading(true);
       setCartError("");
       try {
-        // Pass userId as query param for backend
-        const res = await fetch(`${BASE_API_URL}/api/cart?userId=${userId}`, {
+        const res = await axios.get(`${BASE_API_URL}/api/cart`, {
+          params: { userId },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          credentials: "include",
+          withCredentials: true,
         });
-        if (!res.ok) throw new Error("Failed to fetch cart");
-        const data = await res.json();
-        console.log("Cart data:", data); // Debug log
+        const data = res.data;
         setCart(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("Cart fetch error:", err);
         setCartError("Could not load cart.");
       }
       setCartLoading(false);
@@ -70,16 +68,12 @@ const Order = () => {
       setLoading(true);
       setError("");
       try {
-        // Fixed: Use correct port
-        const res = await fetch(
+        const res = await axios.get(
           `https://mahi-jewel-backend.onrender.com/api/orders/${userId}`
         );
-        if (!res.ok) throw new Error("Failed to fetch orders");
-        const data = await res.json();
-        console.log("Orders data:", data); // Debug log
+        const data = res.data;
         setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("Orders fetch error:", err);
         setError("Could not load orders.");
       }
       setLoading(false);
@@ -112,51 +106,45 @@ const Order = () => {
     setCheckoutMsg("");
     if (!cart.length) return setCheckoutMsg("Your cart is empty.");
     try {
-      // Fixed: Use correct port
-      const res = await fetch(
+      const res = await axios.post(
         "https://mahi-jewel-backend.onrender.com/api/orders",
         {
-          method: "POST",
+          userId,
+          products: cart,
+          total,
+          address: user && user.address ? user.address : "",
+        },
+        {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          credentials: "include",
-          body: JSON.stringify({
-            userId,
-            products: cart,
-            total,
-            address: user && user.address ? user.address : "",
-          }),
+          withCredentials: true,
         }
       );
-      const data = await res.json();
-      console.log("Checkout response:", data); // Debug log
-      if (res.ok && data.success) {
+      const data = res.data;
+      if (res.status === 200 || res.status === 201) {
         setCheckoutMsg("Order placed successfully!");
         setCart([]);
-        localStorage.removeItem("cart"); // Clear cart from localStorage if used
-        // Optionally, you can also call the backend to clear the cart for this user
+        localStorage.removeItem("cart");
         try {
-          await fetch(
-            `https://mahi-jewel-backend.onrender.com/api/cart/clear?userId=${userId}`,
+          await axios.delete(
+            `https://mahi-jewel-backend.onrender.com/api/cart/clear`,
             {
-              method: "DELETE",
+              params: { userId },
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
-              credentials: "include",
+              withCredentials: true,
             }
           );
         } catch (e) {}
-        // Refresh orders
         setOrders((prev) => [data.order, ...prev]);
       } else {
         setCheckoutMsg(data.message || "Failed to place order.");
       }
     } catch (err) {
-      console.error("Checkout error:", err);
-      setCheckoutMsg("Failed to place order.");
+      setCheckoutMsg(err.response?.data?.message || "Failed to place order.");
     }
   };
 
@@ -361,13 +349,10 @@ const Order = () => {
                       className="mt-2 px-3 py-1 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded shadow-lg hover:from-red-700 hover:to-pink-700 text-xs font-semibold transition-all duration-200 transform hover:scale-105"
                       onClick={async () => {
                         try {
-                          const res = await fetch(
-                            `https://mahi-jewel-backend.onrender.com/api/orders/cancel/${order._id}`,
-                            {
-                              method: "PUT",
-                            }
+                          const res = await axios.put(
+                            `https://mahi-jewel-backend.onrender.com/api/orders/cancel/${order._id}`
                           );
-                          if (res.ok) {
+                          if (res.status === 200) {
                             setOrders((prev) =>
                               prev.map((o) =>
                                 o._id === order._id
@@ -395,13 +380,10 @@ const Order = () => {
                       )
                         return;
                       try {
-                        const res = await fetch(
-                          `https://mahi-jewel-backend.onrender.com/api/orders/${order._id}`,
-                          {
-                            method: "DELETE",
-                          }
+                        const res = await axios.delete(
+                          `https://mahi-jewel-backend.onrender.com/api/orders/${order._id}`
                         );
-                        if (res.ok) {
+                        if (res.status === 200) {
                           setOrders((prev) =>
                             prev.filter((o) => o._id !== order._id)
                           );
