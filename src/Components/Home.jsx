@@ -178,7 +178,7 @@ const Home = () => {
       <section
         id="featured"
         onClick={() => navigate("/product")}
-        className="py-20 px-4 max-w-7xl mx-auto bg-white"
+        className="py-20 px-4 max-w-7xl mx-auto "
       >
         <div
           className={`text-center mb-16 transition-all duration-1000 ${

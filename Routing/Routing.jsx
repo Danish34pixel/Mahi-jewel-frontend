@@ -10,6 +10,7 @@ import Cart from "../src/Components/Cart";
 
 import Order from "../src/Components/Order";
 import Orderadmin from "../src/Components/Orderadmin";
+import Wishlist from "../src/Components/Wishlist";
 
 // AdminRoute: Only allows access if user is admin (hardcoded check)
 const isAdmin = () => {
@@ -55,6 +56,7 @@ const Routing = () => {
       <Route path="/viewproduct/:id" element={<ViewProduct />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/order" element={<Order />} />
+      <Route path="/Wishlist" element={<Wishlist />} />
     </Routes>
   );
 };
