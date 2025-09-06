@@ -68,9 +68,7 @@ const Order = () => {
       setLoading(true);
       setError("");
       try {
-        const res = await axios.get(
-          `https://mahi-jewel-backend.onrender.com/api/orders/${userId}`
-        );
+        const res = await axios.get(`${BASE_API_URL}/api/orders/${userId}`);
         const data = res.data;
         setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -107,7 +105,7 @@ const Order = () => {
     if (!cart.length) return setCheckoutMsg("Your cart is empty.");
     try {
       const res = await axios.post(
-        "https://mahi-jewel-backend.onrender.com/api/orders",
+        `${BASE_API_URL}/api/orders`,
         {
           userId,
           products: cart,
@@ -128,16 +126,13 @@ const Order = () => {
         setCart([]);
         localStorage.removeItem("cart");
         try {
-          await axios.delete(
-            `https://mahi-jewel-backend.onrender.com/api/cart/clear`,
-            {
-              params: { userId },
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-              withCredentials: true,
-            }
-          );
+          await axios.delete(`${BASE_API_URL}/api/cart/clear`, {
+            params: { userId },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            withCredentials: true,
+          });
         } catch (e) {}
         setOrders((prev) => [data.order, ...prev]);
       } else {
@@ -508,7 +503,7 @@ const Order = () => {
                           onClick={async () => {
                             try {
                               const res = await axios.put(
-                                `https://mahi-jewel-backend.onrender.com/api/orders/cancel/${order._id}`
+                                `${BASE_API_URL}/api/orders/cancel/${order._id}`
                               );
                               if (res.status === 200) {
                                 setOrders((prev) =>
@@ -538,7 +533,7 @@ const Order = () => {
                             return;
                           try {
                             const res = await axios.delete(
-                              `https://mahi-jewel-backend.onrender.com/api/orders/${order._id}`
+                              `${BASE_API_URL}/api/orders/${order._id}`
                             );
                             if (res.status === 200) {
                               setOrders((prev) =>
