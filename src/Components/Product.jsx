@@ -25,30 +25,74 @@ const Product = () => {
   }, [wishlist]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchWithRetries = async (retries = 2, delay = 500) => {
       console.log("Product list - BASE_API_URL =", BASE_API_URL);
-      try {
-        let res;
+      let lastErr = null;
+      for (let attempt = 0; attempt <= retries; attempt++) {
         try {
-          res = await axios.get(`${BASE_API_URL}/api/products`);
+          const res = await axios.get(`${BASE_API_URL}/api/products`);
           setProducts(Array.isArray(res.data) ? res.data : []);
-        } catch {
-          res = await axios.get("http://localhost:3000/api/products");
-          setProducts(Array.isArray(res.data) ? res.data : []);
+          setError(null);
+          setLoading(false);
+          return;
+        } catch (err) {
+          lastErr = err;
+          // if last attempt, try localhost fallback once
+          if (attempt === retries) {
+            try {
+              const res = await axios.get("http://localhost:3000/api/products");
+              setProducts(Array.isArray(res.data) ? res.data : []);
+              setError(null);
+              setLoading(false);
+              return;
+            } catch (err2) {
+              lastErr = err2;
+            }
+          }
+
+          // wait before next attempt (exponential backoff)
+          await new Promise((r) => setTimeout(r, delay * Math.pow(2, attempt)));
         }
-      } catch (err) {
-        console.error(
-          "Error fetching products:",
-          err.response?.status,
-          err.response?.data || err.message
-        );
-        setProducts([]);
+      }
+
+      console.error(
+        "Error fetching products:",
+        lastErr?.response?.status,
+        lastErr?.response?.data || lastErr?.message
+      );
+      setProducts([]);
+      setError(lastErr?.message || "Network Error");
+      setLoading(false);
+    };
+    fetchWithRetries();
+  }, []);
+
+  const [error, setError] = useState(null);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    // re-run effect by calling fetch manually
+    (async () => {
+      // reuse same logic: try primary then localhost fallback
+      try {
+        const res = await axios.get(`${BASE_API_URL}/api/products`);
+        setProducts(Array.isArray(res.data) ? res.data : []);
+        setError(null);
+      } catch (e) {
+        try {
+          const res = await axios.get("http://localhost:3000/api/products");
+          setProducts(Array.isArray(res.data) ? res.data : []);
+          setError(null);
+        } catch (e2) {
+          setProducts([]);
+          setError(e2?.message || "Network Error");
+        }
       } finally {
         setLoading(false);
       }
-    };
-    fetchProducts();
-  }, []);
+    })();
+  };
 
   // Filter products by search query
   const filteredProducts = !normalizedQuery
