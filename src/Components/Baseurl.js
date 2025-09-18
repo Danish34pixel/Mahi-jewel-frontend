@@ -10,20 +10,9 @@ const isLocal =
 // import.meta.env.DEV is true when running Vite dev server
 const isDev = !!import.meta.env.DEV;
 
-let BASE_API_URL;
-
-if (isLocal || isDev) {
-  // during local development, always point to local backend
-  BASE_API_URL = "http://localhost:3000";
-} else {
-  // In production builds require VITE_API_URL to be set at build time.
-  // This prevents accidentally shipping a hard-coded backend URL.
-  if (!envUrl || String(envUrl).trim() === "") {
-    throw new Error(
-      "VITE_API_URL is not set. Please set VITE_API_URL to your backend URL when building for production."
-    );
-  }
-  BASE_API_URL = envUrl;
-}
+const BASE_API_URL =
+  isLocal || isDev
+    ? "http://localhost:3000"
+    : envUrl || "https://mahi-jewel-backend-1.onrender.com";
 
 export default BASE_API_URL;
