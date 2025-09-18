@@ -99,12 +99,24 @@ const LoginSignup = () => {
         }
         console.log("Signup/Login response:", data); // Add this line for debugging
         if (res.ok) {
-          // Always store user id, email, and token in localStorage if present
+          // If backend returned token/user, store them and auto-login (navigate home)
           if (data.user && (data.user.id || data.user._id)) {
             localStorage.setItem("userId", data.user.id || data.user._id);
           }
           if (data.user && data.user.email) {
             localStorage.setItem("userEmail", data.user.email);
+          }
+          // Persist address if backend returns it (helpful for admin/order views)
+          if (data.user && data.user.address) {
+            localStorage.setItem("userAddress", data.user.address);
+            // Notify other parts of the app that auth/user data changed
+            try {
+              window.dispatchEvent(
+                new CustomEvent("auth:updated", { detail: { user: data.user } })
+              );
+            } catch (e) {
+              // ignore in non-browser environments
+            }
           }
           if (data.token) {
             localStorage.setItem("token", data.token);
@@ -118,8 +130,9 @@ const LoginSignup = () => {
             phone: "",
             address: "",
           });
-          setTimeout(() => {
-            navigate("/login");
+          // Navigate to home after successful signup/login
+          +setTimeout(() => {
+            navigate("/");
           }, 500);
         } else {
           setStatus(false);
@@ -158,6 +171,17 @@ const LoginSignup = () => {
           }
           if (data.user && data.user.email) {
             localStorage.setItem("userEmail", data.user.email);
+          }
+          // Persist address on signup too if present
+          if (data.user && data.user.address) {
+            localStorage.setItem("userAddress", data.user.address);
+            try {
+              window.dispatchEvent(
+                new CustomEvent("auth:updated", { detail: { user: data.user } })
+              );
+            } catch (e) {
+              // ignore
+            }
           }
           if (data.token) {
             localStorage.setItem("token", data.token);

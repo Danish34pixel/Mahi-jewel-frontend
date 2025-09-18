@@ -17,6 +17,15 @@ const ViewProduct = () => {
   const [animate, setAnimate] = useState(false);
   const [currentImg, setCurrentImg] = useState(0);
   const navigate = useNavigate();
+  // Prices are stored in INR in the DB. Keep conversion factor as 1 so we don't inflate values.
+  const USD_TO_INR = 1; // set to 83 only if prices are in USD
+  const inrFormatter = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  });
+  // Use an explicit discount percent so strikethrough and badge match
+  const DISCOUNT = 0.23; // 23% OFF
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -34,25 +43,33 @@ const ViewProduct = () => {
   }, [id]);
 
   const handleAddToCart = async () => {
+    const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
-    if (!userId) {
+    // Enforce login on the client-side before attempting to add to cart.
+    if (!token || !userId) {
       toast.error("Please login first.");
-      navigate("/cart");
+      navigate("/login");
       return;
     }
-    localStorage.setItem("userId", userId);
     try {
-      const res = await axios.post(
-        "https://mahi-jewel-backend.onrender.com/api/cart/add",
-        {
-          userId,
-          productId: product._id,
+      const url = `${BASE_API_URL}/api/cart`;
+      const payload = {
+        // keep userId for backward compatibility; server prefers token
+        userId,
+        product: {
+          _id: product._id,
           name: product.name,
           price: product.price,
           image: product.images?.[0] || "",
         },
-        { headers: { "Content-Type": "application/json" } }
-      );
+      };
+      console.debug("AddToCart -> URL:", url);
+      console.debug("AddToCart -> payload:", payload);
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+      const res = await axios.post(url, payload, { headers });
       toast.success(res.data.message || "Added to cart");
       navigate("/cart");
     } catch {
@@ -293,17 +310,27 @@ const ViewProduct = () => {
               </div>
             </div>
 
-            {/* Price */}
+            {/* Price (display in INR) */}
             <div className="flex items-baseline space-x-2">
-              <span className="text-3xl sm:text-5xl font-bold text-amber-600">
-                ${product.price}
-              </span>
-              <span className="text-base sm:text-lg text-gray-500 line-through">
-                ${(product.price * 1.3).toFixed(2)}
-              </span>
-              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded">
-                23% OFF
-              </span>
+              {(() => {
+                const base = Number(product.price) || 0;
+                const priceInINR = base * USD_TO_INR;
+                const displayed = priceInINR * (1 - DISCOUNT); // price after discount
+                const original = priceInINR; // original price before discount
+                return (
+                  <>
+                    <span className="text-3xl sm:text-5xl font-bold text-amber-600">
+                      {inrFormatter.format(displayed)}
+                    </span>
+                    <span className="text-base sm:text-lg text-gray-500 line-through">
+                      {inrFormatter.format(original)}
+                    </span>
+                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded">
+                      {Math.round(DISCOUNT * 100)}% OFF
+                    </span>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Description */}

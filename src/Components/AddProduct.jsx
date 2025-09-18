@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import BASE_API_URL from "./Baseurl";
 import axios from "axios";
+import BASE_API_URL from "./Baseurl"; // ensure this exports eg "https://mahi-jewel-backend-1.onrender.com"
 
 const AddProduct = () => {
   const [form, setForm] = useState({
@@ -12,8 +12,12 @@ const AddProduct = () => {
     category: "",
   });
   const [message, setMessage] = useState("");
+  // Toggle this to true to call the backend debug path (?debug=1).
+  // Set to false to call the real create endpoint that performs uploads.
+  const DEBUG = false;
 
   const onDrop = useCallback((acceptedFiles) => {
+    // keep max 5 files
     setForm((prev) => ({
       ...prev,
       images: acceptedFiles.slice(0, 5),
@@ -45,19 +49,37 @@ const AddProduct = () => {
 
     const formData = new FormData();
     formData.append("name", form.name);
-    formData.append("price", Number(form.price));
-    formData.append("description", form.description);
-    formData.append("category", form.category);
+    formData.append("price", String(Number(form.price) || 0));
+    formData.append("description", form.description || "");
+    formData.append("category", form.category || "");
 
     for (let i = 0; i < form.images.length; i++) {
-      formData.append("images", form.images[i]);
+      const file = form.images[i];
+      // Note: use same field name 'images' (backend expects upload.array('images', 5))
+      formData.append("images", file, file.name);
+    }
+
+    // debug: log entries (can't log FormData directly)
+    for (const pair of formData.entries()) {
+      console.debug("FormData:", pair[0], pair[1]);
     }
 
     try {
-      const res = await axios.post(`${BASE_API_URL}/api/products`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const data = res.data;
+      const token = localStorage.getItem("token"); // change key if you store elsewhere
+      const headers = {
+        Accept: "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      const res = await axios.post(
+        `${BASE_API_URL}/api/products${DEBUG ? "?debug=1" : ""}`,
+        formData,
+        {
+          headers,
+          timeout: 120000,
+        }
+      );
+
       if (res.status === 200 || res.status === 201) {
         setMessage("✅ Product added successfully!");
         setForm({
@@ -68,10 +90,20 @@ const AddProduct = () => {
           category: "",
         });
       } else {
-        setMessage(data.message || "Failed to add product");
+        setMessage(res.data?.message || "Failed to add product");
       }
     } catch (err) {
-      setMessage(err.response?.data?.message || "Server error");
+      console.error(
+        "Add product error:",
+        err.response?.status,
+        err.response?.data || err.message
+      );
+      const serverMsg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        "Server error";
+      setMessage(serverMsg);
     }
   };
 
@@ -115,13 +147,13 @@ const AddProduct = () => {
         {form.images.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
             {form.images.map((file, idx) => (
-              <div key={idx} className="flex flex-col items-center">
+              <div key={idx} className="flex flex-col items-center w-20">
                 <img
                   src={URL.createObjectURL(file)}
                   alt={file.name}
                   className="h-16 w-16 object-cover rounded border mb-1"
                 />
-                <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                <span className="text-xs bg-gray-100 px-2 py-1 rounded truncate w-full text-center">
                   {file.name}
                 </span>
               </div>
@@ -161,7 +193,13 @@ const AddProduct = () => {
       </form>
 
       {message && (
-        <div className="mt-4 text-center text-red-500">{message}</div>
+        <div
+          className={`mt-4 text-center ${
+            message.startsWith("✅") ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {message}
+        </div>
       )}
     </div>
   );

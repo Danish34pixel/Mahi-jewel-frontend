@@ -10,23 +10,28 @@ const Cart = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [deleteError, setDeleteError] = useState("");
 
-  // Get user ID from localStorage (original functionality)
+  // Get user ID and token from localStorage
   const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   // Fetch cart items from API (original functionality restored)
   useEffect(() => {
-    if (!userId) return;
+    // Require token for cart access
+    if (!userId || !token) {
+      // navigate to login to prompt authentication
+      navigate("/login");
+      return;
+    }
 
     setLoading(true);
     axios
-      .get(`https://mahi-jewel-backend.onrender.com/api/cart`, {
-        params: { userId },
+      .get(`${BASE_API_URL}/api/cart`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         setItems(res.data);
         setLoading(false);
-        // Debug log: print all cart item IDs after fetch
         console.log(
           "Fetched cart items:",
           res.data.map((item) => item._id)
@@ -37,7 +42,7 @@ const Cart = () => {
         setItems([]);
         setLoading(false);
       });
-  }, [userId]);
+  }, [userId, token, navigate]);
 
   const updateQuantity = (itemId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -50,9 +55,11 @@ const Cart = () => {
 
     // Update quantity in backend
     axios
-      .put(`https://mahi-jewel-backend.onrender.com/api/cart/${itemId}`, {
-        quantity: newQuantity,
-      })
+      .put(
+        `${BASE_API_URL}/api/cart/${itemId}`,
+        { quantity: newQuantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
       .catch((error) => {
         console.error("Error updating quantity:", error);
         // Revert on error
@@ -67,7 +74,9 @@ const Cart = () => {
   const fetchCart = () => {
     setLoading(true);
     axios
-      .get(`${BASE_API_URL}/api/cart`, { params: { userId } })
+      .get(`${BASE_API_URL}/api/cart`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => {
         setItems(res.data);
         setLoading(false);
@@ -83,7 +92,9 @@ const Cart = () => {
     setDeletingId(itemId);
     setDeleteError("");
     axios
-      .delete(`https://mahi-jewel-backend.onrender.com/api/cart/${itemId}`)
+      .delete(`${BASE_API_URL}/api/cart/${itemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => {
         if (res.status !== 200 && res.status !== 204) {
           throw new Error("Failed to delete item from backend");

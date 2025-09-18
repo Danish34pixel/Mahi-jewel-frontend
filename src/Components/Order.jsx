@@ -11,6 +11,21 @@ const Order = () => {
   const [cartLoading, setCartLoading] = useState(false);
   const [cartError, setCartError] = useState("");
   const [checkoutMsg, setCheckoutMsg] = useState("");
+  // Modal state to collect missing user details at checkout
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutForm, setCheckoutForm] = useState({
+    username: "",
+    address: "",
+    phone: "",
+    paymentMethod: "COD", // 'COD' or 'online'
+  });
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentLink, setPaymentLink] = useState("");
+  const [paymentOrderId, setPaymentOrderId] = useState(null);
+
+  // Configure your merchant UPI VPA and name here
+  const MERCHANT_UPI = "danishkhaannn34@okhdfcbank"; // merchant UPI id provided
+  const MERCHANT_NAME = "Mahi Jewels";
 
   // Get userId from localStorage (support both user object and userId string)
   let user = null;
@@ -32,6 +47,30 @@ const Order = () => {
     userId = localStorage.getItem("userId");
   }
   console.log("User ID:", userId);
+
+  // Keep a full user object in state (may not be stored in localStorage by login flow)
+  const [currentUser, setCurrentUser] = useState(user || null);
+
+  // If we only have userId, try to fetch the user's full record so we get the address
+  useEffect(() => {
+    const loadUser = async () => {
+      if ((!currentUser || !currentUser.address) && userId) {
+        try {
+          const res = await axios.get(`${BASE_API_URL}/api/auth/users`);
+          const users = Array.isArray(res.data) ? res.data : [];
+          const found = users.find(
+            (u) =>
+              String(u._id) === String(userId) ||
+              String(u.id) === String(userId)
+          );
+          if (found) setCurrentUser(found);
+        } catch (err) {
+          // ignore
+        }
+      }
+    };
+    loadUser();
+  }, [userId, currentUser]);
 
   // Fetch user's cart
   useEffect(() => {
@@ -103,6 +142,35 @@ const Order = () => {
   const handleCheckout = async () => {
     setCheckoutMsg("");
     if (!cart.length) return setCheckoutMsg("Your cart is empty.");
+
+    const resolvedUsername =
+      (currentUser && (currentUser.username || currentUser.name)) ||
+      (user && (user.username || user.name)) ||
+      checkoutForm.username ||
+      "";
+    const resolvedAddress =
+      (currentUser && currentUser.address) ||
+      (user && user.address) ||
+      checkoutForm.address ||
+      "";
+
+    if (!resolvedUsername || !resolvedAddress) {
+      // prefill modal with any existing values
+      setCheckoutForm((prev) => ({
+        ...prev,
+        username: resolvedUsername,
+        address: resolvedAddress,
+        phone:
+          (currentUser && currentUser.phone) ||
+          (user && user.phone) ||
+          checkoutForm.phone ||
+          "",
+      }));
+      setShowCheckoutModal(true);
+      return;
+    }
+
+    // proceed to create order with resolved details
     try {
       const res = await axios.post(
         `${BASE_API_URL}/api/orders`,
@@ -110,7 +178,14 @@ const Order = () => {
           userId,
           products: cart,
           total,
-          address: user && user.address ? user.address : "",
+          address: resolvedAddress,
+          username: resolvedUsername,
+          phone:
+            (currentUser && currentUser.phone) ||
+            (user && user.phone) ||
+            checkoutForm.phone ||
+            "",
+          paymentMethod: checkoutForm.paymentMethod || "COD",
         },
         {
           headers: {
@@ -122,7 +197,9 @@ const Order = () => {
       );
       const data = res.data;
       if (res.status === 200 || res.status === 201) {
+        const created = res.data;
         setCheckoutMsg("Order placed successfully!");
+        // Clear cart locally (server already has the created order)
         setCart([]);
         localStorage.removeItem("cart");
         try {
@@ -134,13 +211,58 @@ const Order = () => {
             withCredentials: true,
           });
         } catch (e) {}
-        setOrders((prev) => [data.order, ...prev]);
+        setOrders((prev) => [created, ...prev]);
+
+        // If the user selected online payment, show a QR / deep link for UPI (PhonePe)
+        const pm = (checkoutForm.paymentMethod || "COD").toLowerCase();
+        if (pm === "online") {
+          // Build UPI deep link (amount in INR, two decimals)
+          const amt = Number(total || 0).toFixed(2);
+          const upiUri = `upi://pay?pa=${encodeURIComponent(
+            MERCHANT_UPI
+          )}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${encodeURIComponent(
+            amt
+          )}&cu=INR&tn=${encodeURIComponent("Order%20Payment")}`;
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+            upiUri
+          )}`;
+          setPaymentOrderId(created._id || created.orderId || null);
+          setPaymentLink(upiUri);
+          setShowPaymentModal(true);
+          // If on mobile, attempt to open the UPI deep link directly (will open PhonePe/UPI apps)
+          try {
+            const isMobile =
+              /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                navigator.userAgent
+              );
+            if (isMobile) {
+              // give the UI a moment to update then navigate
+              setTimeout(() => {
+                // This will try to invoke the UPI app on mobile devices
+                window.location.href = upiUri;
+              }, 600);
+            }
+          } catch (e) {
+            // ignore errors in UA detection
+          }
+          // keep checkoutMsg but let user complete payment via QR
+        }
       } else {
         setCheckoutMsg(data.message || "Failed to place order.");
       }
     } catch (err) {
       setCheckoutMsg(err.response?.data?.message || "Failed to place order.");
     }
+  };
+
+  const submitCheckoutModal = async () => {
+    // Close modal and proceed to checkout with provided details
+    setShowCheckoutModal(false);
+    await handleCheckout();
+  };
+
+  const onChangeCheckoutForm = (e) => {
+    setCheckoutForm({ ...checkoutForm, [e.target.name]: e.target.value });
   };
 
   // Show login prompt if no user
@@ -276,12 +398,137 @@ const Order = () => {
                       <span>Total:</span>
                       <span>₹{total.toFixed(2)}</span>
                     </div>
+                    {/* Checkout Modal */}
+                    {showCheckoutModal && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+                          <h3 className="text-lg font-semibold mb-4">
+                            Enter delivery details
+                          </h3>
+                          <div className="space-y-3">
+                            <input
+                              type="text"
+                              name="username"
+                              placeholder="Full name"
+                              value={checkoutForm.username}
+                              onChange={onChangeCheckoutForm}
+                              className="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                              type="text"
+                              name="address"
+                              placeholder="Address"
+                              value={checkoutForm.address}
+                              onChange={onChangeCheckoutForm}
+                              className="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                              type="tel"
+                              name="phone"
+                              placeholder="Phone (optional)"
+                              value={checkoutForm.phone}
+                              onChange={onChangeCheckoutForm}
+                              className="w-full px-3 py-2 border rounded"
+                            />
+                            <div className="mt-2">
+                              <label className="block text-sm font-medium mb-1">
+                                Payment Method
+                              </label>
+                              <div className="flex items-center gap-4">
+                                <label className="inline-flex items-center">
+                                  <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="COD"
+                                    checked={
+                                      checkoutForm.paymentMethod === "COD"
+                                    }
+                                    onChange={onChangeCheckoutForm}
+                                    className="mr-2"
+                                  />
+                                  Cash on Delivery
+                                </label>
+                                <label className="inline-flex items-center">
+                                  <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="online"
+                                    checked={
+                                      checkoutForm.paymentMethod === "online"
+                                    }
+                                    onChange={onChangeCheckoutForm}
+                                    className="mr-2"
+                                  />
+                                  Online (UPI)
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-4 flex justify-end gap-3">
+                            <button
+                              className="px-4 py-2 rounded bg-gray-200"
+                              onClick={() => setShowCheckoutModal(false)}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              className="px-4 py-2 rounded bg-amber-500 text-white"
+                              onClick={submitCheckoutModal}
+                            >
+                              Confirm & Place Order
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {/* Payment Modal for Online UPI */}
+                    {showPaymentModal && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm text-center">
+                          <h3 className="text-lg font-semibold mb-4">
+                            Pay with UPI
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Scan the QR or open in PhonePe to complete the
+                            payment of <strong>₹{total.toFixed(2)}</strong>
+                          </p>
+                          <div className="mx-auto mb-4 w-60 h-60">
+                            <img
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+                                paymentLink
+                              )}`}
+                              alt="UPI QR"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-3">
+                            <a
+                              href={paymentLink}
+                              onClick={() => {
+                                // open deep link
+                              }}
+                              className="px-4 py-2 bg-amber-500 text-white rounded-xl"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Open in PhonePe / UPI App
+                            </a>
+                            <button
+                              className="px-4 py-2 bg-gray-200 rounded-xl"
+                              onClick={() => setShowPaymentModal(false)}
+                            >
+                              Close
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <button
                   className="w-full mt-6 bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:from-amber-600 hover:to-amber-700 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleCheckout}
+                  onClick={() => setShowCheckoutModal(true)}
                   disabled={cartLoading}
                 >
                   Place Order

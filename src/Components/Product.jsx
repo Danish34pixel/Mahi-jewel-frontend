@@ -26,6 +26,7 @@ const Product = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      console.log("Product list - BASE_API_URL =", BASE_API_URL);
       try {
         let res;
         try {
@@ -36,6 +37,11 @@ const Product = () => {
           setProducts(Array.isArray(res.data) ? res.data : []);
         }
       } catch (err) {
+        console.error(
+          "Error fetching products:",
+          err.response?.status,
+          err.response?.data || err.message
+        );
         setProducts([]);
       } finally {
         setLoading(false);
@@ -69,6 +75,22 @@ const Product = () => {
     } else {
       setWishlist([...wishlist, id]);
     }
+  };
+
+  // Currency formatter for Indian Rupees
+  const INR = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  });
+
+  // If backend stores prices in USD and you want to convert to INR, adjust this rate.
+  // For now we assume prices are already in INR. If conversion is needed, change convertToINR to multiply by rate.
+  const CONVERT_USD_TO_INR = 1; // set to 83 (or appropriate rate) if prices are in USD
+  const convertToINR = (value) => {
+    if (value == null) return "";
+    const numeric = Number(value) || 0;
+    return INR.format(numeric * CONVERT_USD_TO_INR);
   };
 
   if (loading)
@@ -163,24 +185,16 @@ const Product = () => {
                 {/* Gradient overlay for hover effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-400/0 to-yellow-400/0 group-hover:from-amber-400/5 group-hover:to-yellow-400/5 rounded-2xl transition-all duration-300"></div>
 
-                {/* Product Images */}
+                {/* Single Product Image */}
                 {product.images && product.images.length > 0 && (
                   <div className="relative mb-6">
-                    <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
-                      {product.images.slice(0, 5).map((img, idx) => (
-                        <div key={idx} className="relative flex-shrink-0">
-                          <img
-                            src={img}
-                            alt={product.name}
-                            className="h-28 w-28 object-cover rounded-xl border border-slate-200 group-hover:border-amber-400/50 transition-all duration-300 shadow-lg"
-                          />
-                          {idx === 0 && (
-                            <div className="absolute top-2 left-2 bg-amber-400 text-slate-900 text-xs font-bold px-2 py-1 rounded-full">
-                              Featured
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-48 object-cover rounded-xl border border-slate-200 group-hover:border-amber-400/50 transition-all duration-300 shadow-lg"
+                    />
+                    <div className="absolute top-2 left-2 bg-amber-400 text-slate-900 text-xs font-bold px-2 py-1 rounded-full">
+                      Featured
                     </div>
                   </div>
                 )}
@@ -193,7 +207,7 @@ const Product = () => {
 
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-2xl font-bold text-amber-400">
-                      ₹{product.price}
+                      {convertToINR(product.price)}
                     </p>
                     <span className="bg-slate-100 text-amber-400 text-sm font-medium px-3 py-1 rounded-full uppercase tracking-wide">
                       {product.category}
