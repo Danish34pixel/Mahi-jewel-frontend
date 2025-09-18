@@ -172,8 +172,23 @@ const Order = () => {
       return;
     }
 
-    // proceed to create order with resolved details
+    // Prevent duplicate order submission if a recent order was just created
+    // We'll store last order metadata in localStorage under 'lastOrder' key
     try {
+      const lastOrderRaw = localStorage.getItem("lastOrder");
+      if (lastOrderRaw) {
+        const lastOrder = JSON.parse(lastOrderRaw);
+        // if last order matches same cart total and was created within 2 minutes, block
+        const ageMs = Date.now() - (lastOrder.createdAt || 0);
+        if (lastOrder.total === Number(total) && ageMs < 2 * 60 * 1000) {
+          setCheckoutMsg(
+            "It looks like you just placed this order. Please wait a moment before placing it again."
+          );
+          return;
+        }
+      }
+
+      // proceed to create order with resolved details
       const res = await axios.post(
         `${BASE_API_URL}/api/orders`,
         {
@@ -201,6 +216,20 @@ const Order = () => {
       if (res.status === 200 || res.status === 201) {
         const created = res.data;
         setCheckoutMsg("Order placed successfully!");
+        // record last order in localStorage to prevent accidental re-submit on refresh
+        try {
+          localStorage.setItem(
+            "lastOrder",
+            JSON.stringify({
+              id: created._id || created.orderId || null,
+              total: Number(total),
+              createdAt: Date.now(),
+            })
+          );
+        } catch (e) {
+          // ignore storage errors
+        }
+
         // Clear cart locally (server already has the created order)
         setCart([]);
         localStorage.removeItem("cart");

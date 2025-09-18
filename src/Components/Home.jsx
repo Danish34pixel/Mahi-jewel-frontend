@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import Nav from "./Nav";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import BASE_API_URL from "./Baseurl";
+import formatCurrency from "./formatCurrency";
 
 // Nav component removed as requested
 
@@ -41,40 +44,27 @@ const Home = () => {
     },
   ];
 
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Aurora Diamond Ring",
-      price: "$2,999",
-      image:
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      rating: 5,
-    },
-    {
-      id: 2,
-      name: "Celestial Gold Necklace",
-      price: "$1,599",
-      image:
-        "https://images.unsplash.com/photo-1611652022419-a9419f74343d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      rating: 5,
-    },
-    {
-      id: 3,
-      name: "Eternal Pearl Earrings",
-      price: "$899",
-      image:
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      rating: 5,
-    },
-    {
-      id: 4,
-      name: "Radiant Tennis Bracelet",
-      price: "$3,299",
-      image:
-        "https://images.unsplash.com/photo-1588444650700-6d3fb2a2c969?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      rating: 5,
-    },
-  ];
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchFeatured = async () => {
+      try {
+        const res = await axios.get(`${BASE_API_URL}/api/products?limit=4`);
+        if (mounted)
+          setFeaturedProducts(
+            Array.isArray(res.data) ? res.data.slice(0, 4) : []
+          );
+      } catch (err) {
+        // fallback to empty
+        if (mounted) setFeaturedProducts([]);
+      }
+    };
+    fetchFeatured();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -232,9 +222,28 @@ const Home = () => {
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">
                   {product.name}
                 </h3>
-                <p className="text-2xl font-bold text-amber-600">
-                  {product.price}
-                </p>
+                <div>
+                  {product.discount && Number(product.discount) > 0 ? (
+                    <div className="flex items-baseline justify-center space-x-3">
+                      <span className="text-2xl font-bold text-amber-600">
+                        {formatCurrency(
+                          (Number(product.price) || 0) *
+                            (1 - Number(product.discount) / 100)
+                        )}
+                      </span>
+                      <span className="text-sm text-gray-500 line-through">
+                        {formatCurrency(Number(product.price) || 0)}
+                      </span>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
+                        {Math.round(Number(product.discount))}% OFF
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-2xl font-bold text-amber-600">
+                      {formatCurrency(Number(product.price) || 0)}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           ))}
