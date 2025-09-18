@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BASE_API_URL from "./Baseurl";
+
 // ShinyText component integrated
 const ShinyText = ({ text, disabled = false, speed = 5, className = "" }) => {
   const animationDuration = `${speed}s`;
 
   return (
     <div
-      className={`text-[#b5b5b5a4] bg-clip-text inline-block ${
+      className={`text-amber-600 bg-clip-text inline-block ${
         disabled ? "" : "animate-shine"
       } ${className}`}
       style={{
         backgroundImage:
-          "linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 60%)",
+          "linear-gradient(120deg, rgba(245, 158, 11, 0) 40%, rgba(245, 158, 11, 0.8) 50%, rgba(245, 158, 11, 0) 60%)",
         backgroundSize: "200% 100%",
         WebkitBackgroundClip: "text",
         animationDuration: animationDuration,
@@ -32,14 +33,14 @@ const ShinyBorder = ({ children, className = "", speed = 3 }) => {
       className={`relative ${className}`}
       style={{
         background:
-          "linear-gradient(120deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.1) 100%)",
+          "linear-gradient(120deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.3) 50%, rgba(245, 158, 11, 0.1) 100%)",
         backgroundSize: "200% 100%",
         animation: `shine ${animationDuration} linear infinite`,
         padding: "2px",
         borderRadius: "inherit",
       }}
     >
-      <div className="w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-800 rounded-[inherit]">
+      <div className="w-full h-full bg-gradient-to-br from-amber-50 via-white to-orange-50 rounded-[inherit]">
         {children}
       </div>
     </div>
@@ -203,7 +204,7 @@ const LoginSignup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 flex items-center justify-center p-4">
       <style>{`
         @keyframes shine {
           0% { background-position: 100%; }
@@ -221,20 +222,24 @@ const LoginSignup = () => {
       >
         {/* Animated Header Section */}
         <div
-          className={`absolute top-0 left-0 w-full bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white text-center relative overflow-hidden transition-all duration-700 ease-in-out ${
+          className={`absolute top-0 left-0 w-full bg-gradient-to-br from-amber-400 via-amber-500 to-orange-400 text-white text-center relative overflow-hidden transition-all duration-700 ease-in-out ${
             isSignUp ? "h-32" : "h-40"
           }`}
         >
-          <div className="absolute top-2 right-2 w-12 h-12 border-2 border-yellow-400 opacity-20 rounded-full animate-pulse"></div>
-          <div className="absolute bottom-2 left-2 w-8 h-8 border-2 border-yellow-400 opacity-30 rotate-45"></div>
+          <div className="absolute top-2 right-2 w-12 h-12 border-2 border-white opacity-20 rounded-full animate-pulse"></div>
+          <div className="absolute bottom-2 left-2 w-8 h-8 border-2 border-white opacity-30 rotate-45"></div>
 
           <div className="flex flex-col items-center justify-center h-full px-6">
             <div
-              className={`rounded-full mx-auto mb-3 transition-all duration-500 bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center justify-center text-white font-bold ${
+              className={`rounded-full mx-auto mb-3 transition-all duration-500 bg-white flex items-center justify-center text-amber-600 font-bold ${
                 isSignUp ? "w-16 h-16 text-lg" : "w-20 h-20 text-xl"
               }`}
             >
-              <img src="/mahi.logo.jpg" alt="" />
+              <img
+                src="/mahi.logo.jpg"
+                alt=""
+                className="rounded-full w-full h-full object-cover"
+              />
             </div>
             <h1
               className={`font-bold mb-2 transition-all duration-500 ${
@@ -247,7 +252,7 @@ const LoginSignup = () => {
                 className="text-white"
               />
             </h1>
-            <p className="text-emerald-100 text-xs">
+            <p className="text-amber-100 text-xs">
               {isSignUp ? "Join mahi-jewels today" : "Sign in to your account"}
             </p>
           </div>
@@ -280,7 +285,7 @@ const LoginSignup = () => {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-sm text-gray-700"
                 autoComplete="email"
               />
 
@@ -291,13 +296,13 @@ const LoginSignup = () => {
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-sm text-gray-700"
                 autoComplete="current-password"
               />
 
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transform hover:scale-105 transition-all duration-200 shadow-lg text-sm"
+                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transform hover:scale-105 transition-all duration-200 shadow-lg text-sm"
               >
                 Sign In
               </button>
@@ -318,17 +323,18 @@ const LoginSignup = () => {
 
             {/* Toggle to Sign Up */}
             <div className="text-center">
-              <p className="text-gray-300 text-sm mb-3">
+              <p className="text-gray-600 text-sm mb-3">
                 Don't have an account?
               </p>
               <button
+                type="button"
                 onClick={() => setIsSignUp(true)}
-                className="px-6 py-2 border-2 border-emerald-500 text-emerald-400 font-semibold rounded-full hover:bg-emerald-50 transition-all duration-300 text-sm transform hover:scale-105"
+                className="px-6 py-2 border-2 border-amber-500 text-amber-600 font-semibold rounded-full hover:bg-amber-50 transition-all duration-300 text-sm transform hover:scale-105"
               >
                 <ShinyText
                   text="Sign Up"
                   speed={4}
-                  className="text-emerald-400"
+                  className="text-amber-600"
                 />
               </button>
             </div>
@@ -352,7 +358,7 @@ const LoginSignup = () => {
                 value={form.username}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-sm text-gray-700"
                 autoComplete="username"
               />
 
@@ -363,7 +369,7 @@ const LoginSignup = () => {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-sm text-gray-700"
                 autoComplete="email"
               />
 
@@ -374,7 +380,7 @@ const LoginSignup = () => {
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-sm text-gray-700"
                 autoComplete="new-password"
               />
 
@@ -391,7 +397,7 @@ const LoginSignup = () => {
                   required
                   maxLength={10}
                   pattern="[0-9]{10}"
-                  className="w-full pl-14 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                  className="w-full pl-14 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-sm text-gray-700"
                   inputMode="numeric"
                   autoComplete="tel"
                 />
@@ -404,13 +410,13 @@ const LoginSignup = () => {
                 value={form.address}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors text-sm"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-sm text-gray-700"
                 autoComplete="street-address"
               />
 
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transform hover:scale-105 transition-all duration-200 shadow-lg text-sm"
+                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transform hover:scale-105 transition-all duration-200 shadow-lg text-sm"
               >
                 Sign Up
               </button>
@@ -431,17 +437,18 @@ const LoginSignup = () => {
 
             {/* Toggle to Sign In */}
             <div className="text-center">
-              <p className="text-gray-300 text-sm mb-3">
+              <p className="text-gray-600 text-sm mb-3">
                 Already have an account?
               </p>
               <button
+                type="button"
                 onClick={() => setIsSignUp(false)}
-                className="px-6 py-2 border-2 border-emerald-500 text-emerald-400 font-semibold rounded-full hover:bg-emerald-50 transition-all duration-300 text-sm transform hover:scale-105"
+                className="px-6 py-2 border-2 border-amber-500 text-amber-600 font-semibold rounded-full hover:bg-amber-50 transition-all duration-300 text-sm transform hover:scale-105"
               >
                 <ShinyText
                   text="Sign In"
                   speed={4}
-                  className="text-emerald-400"
+                  className="text-amber-600"
                 />
               </button>
             </div>
@@ -449,8 +456,8 @@ const LoginSignup = () => {
         </div>
 
         {/* Floating Animation Elements */}
-        <div className="absolute top-20 right-4 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-50"></div>
-        <div className="absolute bottom-20 left-4 w-3 h-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full animate-bounce opacity-60"></div>
+        <div className="absolute top-20 right-4 w-2 h-2 bg-amber-400 rounded-full animate-pulse opacity-50"></div>
+        <div className="absolute bottom-20 left-4 w-3 h-3 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-full animate-bounce opacity-60"></div>
       </ShinyBorder>
 
       {/* Desktop Layout - Original Horizontal Design with Shiny Border */}
@@ -475,14 +482,14 @@ const LoginSignup = () => {
             autoComplete="on"
           >
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-emerald-100 mb-2">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
                 <ShinyText
                   text="Welcome to mahi-jewels!"
                   speed={3}
-                  className="text-emerald-100"
+                  className="text-amber-600"
                 />
               </h1>
-              <p className="text-gray-300">Sign in to your account</p>
+              <p className="text-gray-600">Sign in to your account</p>
             </div>
 
             <div className="space-y-4">
@@ -493,7 +500,7 @@ const LoginSignup = () => {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-gray-700"
                 autoComplete="email"
               />
               <input
@@ -503,13 +510,13 @@ const LoginSignup = () => {
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-gray-700"
                 autoComplete="current-password"
               />
 
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
               >
                 Sign In
               </button>
@@ -539,14 +546,14 @@ const LoginSignup = () => {
             autoComplete="on"
           >
             <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold text-emerald-100 mb-2">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
                 <ShinyText
                   text="Create Account"
                   speed={3}
-                  className="text-emerald-100"
+                  className="text-amber-600"
                 />
               </h1>
-              <p className="text-gray-300">Sign up for a new account</p>
+              <p className="text-gray-600">Sign up for a new account</p>
             </div>
 
             <div className="space-y-3">
@@ -557,7 +564,7 @@ const LoginSignup = () => {
                 value={form.username}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-gray-700"
                 autoComplete="username"
               />
               <input
@@ -567,7 +574,7 @@ const LoginSignup = () => {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-gray-700"
                 autoComplete="email"
               />
               <input
@@ -577,7 +584,7 @@ const LoginSignup = () => {
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-gray-700"
                 autoComplete="new-password"
               />
 
@@ -594,7 +601,7 @@ const LoginSignup = () => {
                   required
                   maxLength={10}
                   pattern="[0-9]{10}"
-                  className="w-full pl-16 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                  className="w-full pl-16 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-gray-700"
                   inputMode="numeric"
                   autoComplete="tel"
                 />
@@ -607,13 +614,13 @@ const LoginSignup = () => {
                 value={form.address}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-amber-500 focus:outline-none transition-colors text-gray-700"
                 autoComplete="street-address"
               />
 
               <button
                 type="submit"
-                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-amber-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
               >
                 Sign Up
               </button>
@@ -633,18 +640,19 @@ const LoginSignup = () => {
             )}
 
             {/* Toggle to Sign In */}
-            <div className="text-center">
-              <p className="text-gray-300 text-sm mb-3">
+            <div className="text-center mt-4">
+              <p className="text-gray-600 text-sm mb-3">
                 Already have an account?
               </p>
               <button
+                type="button"
                 onClick={() => setIsSignUp(false)}
-                className="px-6 py-2 border-2 border-emerald-500 text-emerald-400 font-semibold rounded-full hover:bg-emerald-50 transition-all duration-300 text-sm transform hover:scale-105"
+                className="px-6 py-2 border-2 border-amber-500 text-amber-600 font-semibold rounded-full hover:bg-amber-50 transition-all duration-300 text-sm transform hover:scale-105"
               >
                 <ShinyText
                   text="Sign In"
                   speed={4}
-                  className="text-emerald-400"
+                  className="text-amber-600"
                 />
               </button>
             </div>
@@ -658,7 +666,7 @@ const LoginSignup = () => {
           }`}
         >
           <div
-            className={`relative -left-full h-full w-[200%] bg-gradient-to-br from-gray-900 via-black to-gray-800 transition-transform duration-700 ${
+            className={`relative -left-full h-full w-[200%] bg-gradient-to-br from-amber-400 via-amber-500 to-orange-400 transition-transform duration-700 ${
               isSignUp ? "translate-x-1/2" : "translate-x-0"
             }`}
           >
@@ -668,8 +676,12 @@ const LoginSignup = () => {
                 isSignUp ? "translate-x-0" : "-translate-x-1/5"
               }`}
             >
-              <div className="w-24 h-24 mb-6 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center justify-center text-white font-bold text-2xl">
-                <img src="/mahi.logo.jpg" alt="" />
+              <div className="w-24 h-24 mb-6 rounded-full bg-white flex items-center justify-center text-amber-600 font-bold text-2xl">
+                <img
+                  src="/mahi.logo.jpg"
+                  alt=""
+                  className="rounded-full w-full h-full object-cover"
+                />
               </div>
               <div className="space-y-6">
                 <h1 className="text-3xl font-bold">
@@ -679,18 +691,19 @@ const LoginSignup = () => {
                     className="text-white"
                   />
                 </h1>
-                <p className="text-emerald-100 leading-relaxed">
+                <p className="text-amber-100 leading-relaxed">
                   To keep connected with us please login with your personal info
                 </p>
                 <button
+                  type="button"
                   onClick={() => setIsSignUp(false)}
-                  className="px-8 py-3 border-2 border-cyan-500/30 font-semibold rounded-full hover:bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:text-emerald-800 transition-all duration-300 transform hover:scale-105"
+                  className="px-8 py-3 border-2 border-white/30 font-semibold rounded-full hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
                 >
                   <ShinyText text="Sign In" speed={3} className="text-white" />
                 </button>
               </div>
-              <div className="absolute top-10 right-10 w-20 h-20 border-2 border-yellow-400 opacity-20 rounded-full animate-pulse"></div>
-              <div className="absolute bottom-10 left-10 w-16 h-16 border-2 border-yellow-400 opacity-30 rotate-45"></div>
+              <div className="absolute top-10 right-10 w-20 h-20 border-2 border-white opacity-20 rounded-full animate-pulse"></div>
+              <div className="absolute bottom-10 left-10 w-16 h-16 border-2 border-white opacity-30 rotate-45"></div>
             </div>
 
             {/* Right Overlay Panel */}
@@ -699,8 +712,12 @@ const LoginSignup = () => {
                 isSignUp ? "translate-x-1/5" : "translate-x-0"
               }`}
             >
-              <div className="w-24 h-24 rounded-full mb-10 bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center justify-center text-white font-bold text-2xl">
-                <img src="/mahi.logo.jpg" alt="" />
+              <div className="w-24 h-24 rounded-full mb-10 bg-white flex items-center justify-center text-amber-600 font-bold text-2xl">
+                <img
+                  src="/mahi.logo.jpg"
+                  alt=""
+                  className="rounded-full w-full h-full object-cover"
+                />
               </div>
               <div className="space-y-6">
                 <h1 className="text-3xl font-bold">
@@ -710,27 +727,28 @@ const LoginSignup = () => {
                     className="text-white"
                   />
                 </h1>
-                <p className="text-emerald-100 leading-relaxed">
+                <p className="text-amber-100 leading-relaxed">
                   Enter your personal details and start your journey with us
                 </p>
                 <button
+                  type="button"
                   onClick={() => setIsSignUp(true)}
-                  className="px-8 py-3 border-2 border-cyan-500/30 font-semibold rounded-full hover:bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:text-emerald-800 transition-all duration-300 transform hover:scale-105"
+                  className="px-8 py-3 border-2 border-white/30 font-semibold rounded-full hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
                 >
                   <ShinyText text="Sign Up" speed={3} className="text-white" />
                 </button>
               </div>
-              <div className="absolute top-10 left-10 w-24 h-24 border-2 border-yellow-400 opacity-20 rounded-full animate-pulse"></div>
-              <div className="absolute bottom-10 right-10 w-12 h-12 border-2 border-yellow-400 opacity-30 rotate-45"></div>
+              <div className="absolute top-10 left-10 w-24 h-24 border-2 border-white opacity-20 rounded-full animate-pulse"></div>
+              <div className="absolute bottom-10 right-10 w-12 h-12 border-2 border-white opacity-30 rotate-45"></div>
             </div>
           </div>
         </div>
 
         {/* Floating Elements */}
-        <div className="absolute top-5 left-5 w-3 h-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full animate-bounce opacity-70"></div>
-        <div className="absolute top-20 right-20 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-50"></div>
+        <div className="absolute top-5 left-5 w-3 h-3 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-full animate-bounce opacity-70"></div>
+        <div className="absolute top-20 right-20 w-2 h-2 bg-amber-400 rounded-full animate-pulse opacity-50"></div>
         <div
-          className="absolute bottom-10 left-20 w-4 h-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full animate-bounce opacity-60"
+          className="absolute bottom-10 left-20 w-4 h-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-full animate-bounce opacity-60"
           style={{ animationDelay: "0.5s" }}
         ></div>
       </ShinyBorder>
