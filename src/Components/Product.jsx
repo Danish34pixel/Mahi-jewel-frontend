@@ -250,9 +250,28 @@ const Product = () => {
                   </h3>
 
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-2xl font-bold text-amber-400">
-                      {convertToINR(product.price)}
-                    </p>
+                    <div>
+                      {product.discount && Number(product.discount) > 0 ? (
+                        <div className="flex items-baseline space-x-3">
+                          <span className="text-2xl font-bold text-amber-400">
+                            {convertToINR(
+                              (Number(product.price) || 0) *
+                                (1 - Number(product.discount) / 100)
+                            )}
+                          </span>
+                          <span className="text-sm text-gray-500 line-through">
+                            {convertToINR(product.price)}
+                          </span>
+                          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
+                            {Math.round(Number(product.discount))}% OFF
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-2xl font-bold text-amber-400">
+                          {convertToINR(product.price)}
+                        </p>
+                      )}
+                    </div>
                     <span className="bg-slate-100 text-amber-400 text-sm font-medium px-3 py-1 rounded-full uppercase tracking-wide">
                       {product.category}
                     </span>

@@ -7,6 +7,7 @@ const AddProduct = () => {
   const [form, setForm] = useState({
     name: "",
     price: "",
+    discount: "",
     images: [],
     description: "",
     category: "",
@@ -50,6 +51,7 @@ const AddProduct = () => {
     const formData = new FormData();
     formData.append("name", form.name);
     formData.append("price", String(Number(form.price) || 0));
+    formData.append("discount", String(Number(form.discount) || 0));
     formData.append("description", form.description || "");
     formData.append("category", form.category || "");
 
@@ -128,6 +130,17 @@ const AddProduct = () => {
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
           required
+        />
+
+        <input
+          type="number"
+          name="discount"
+          placeholder="Discount (%)"
+          min="0"
+          max="100"
+          value={form.discount}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
         />
 
         <div

@@ -24,8 +24,7 @@ const ViewProduct = () => {
     currency: "INR",
     maximumFractionDigits: 2,
   });
-  // Use an explicit discount percent so strikethrough and badge match
-  const DISCOUNT = 0.23; // 23% OFF
+  // Discount (percentage) is supported via product.discount (0-100). We'll read it per-product below.
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -315,20 +314,27 @@ const ViewProduct = () => {
               {(() => {
                 const base = Number(product.price) || 0;
                 const priceInINR = base * USD_TO_INR;
-                const displayed = priceInINR * (1 - DISCOUNT); // price after discount
-                const original = priceInINR; // original price before discount
+                const discountPct = Number(product.discount) || 0;
+                if (discountPct > 0) {
+                  const discounted = priceInINR * (1 - discountPct / 100);
+                  return (
+                    <>
+                      <span className="text-3xl sm:text-5xl font-bold text-amber-600">
+                        {inrFormatter.format(discounted)}
+                      </span>
+                      <span className="text-base sm:text-lg text-gray-500 line-through">
+                        {inrFormatter.format(priceInINR)}
+                      </span>
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded">
+                        {Math.round(discountPct)}% OFF
+                      </span>
+                    </>
+                  );
+                }
                 return (
-                  <>
-                    <span className="text-3xl sm:text-5xl font-bold text-amber-600">
-                      {inrFormatter.format(displayed)}
-                    </span>
-                    <span className="text-base sm:text-lg text-gray-500 line-through">
-                      {inrFormatter.format(original)}
-                    </span>
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded">
-                      {Math.round(DISCOUNT * 100)}% OFF
-                    </span>
-                  </>
+                  <span className="text-3xl sm:text-5xl font-bold text-amber-600">
+                    {inrFormatter.format(priceInINR)}
+                  </span>
                 );
               })()}
             </div>
