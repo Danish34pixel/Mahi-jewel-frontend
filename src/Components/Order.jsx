@@ -26,6 +26,8 @@ const Order = () => {
   // Configure your merchant UPI VPA and name here
   const MERCHANT_UPI = "danishkhaannn34@okhdfcbank"; // merchant UPI id provided
   const MERCHANT_NAME = "Mahi Jewels";
+  // Optional: use a pre-generated merchant QR image (set VITE_MERCHANT_QR_URL at build time)
+  const MERCHANT_QR = import.meta.env.VITE_MERCHANT_QR_URL || null;
 
   // Get userId from localStorage (support both user object and userId string)
   let user = null;
@@ -223,11 +225,12 @@ const Order = () => {
           )}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${encodeURIComponent(
             amt
           )}&cu=INR&tn=${encodeURIComponent("Order%20Payment")}`;
-          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+          const generatedQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
             upiUri
           )}`;
           setPaymentOrderId(created._id || created.orderId || null);
           setPaymentLink(upiUri);
+          // If a pre-generated merchant QR is configured, prefer showing that image.
           setShowPaymentModal(true);
           // If on mobile, attempt to open the UPI deep link directly (will open PhonePe/UPI apps)
           try {
@@ -494,9 +497,13 @@ const Order = () => {
                           </p>
                           <div className="mx-auto mb-4 w-60 h-60">
                             <img
-                              src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-                                paymentLink
-                              )}`}
+                              src={
+                                MERCHANT_QR
+                                  ? MERCHANT_QR
+                                  : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+                                      paymentLink
+                                    )}`
+                              }
                               alt="UPI QR"
                               className="w-full h-full object-contain"
                             />
